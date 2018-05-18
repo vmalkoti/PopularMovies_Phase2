@@ -6,5 +6,6 @@ This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get mov
 
 Use following tutorial at medium if you are unfamiliar with defining your API key in gradle : https://medium.com/code-better/hiding-api-keys-from-your-android-repository-b23f5598b906
 
-Placeholder images from freepik.com
-Icons used from material.io
+Placeholder images from https://www.freepik.com/
+
+Icons from https://material.io/
