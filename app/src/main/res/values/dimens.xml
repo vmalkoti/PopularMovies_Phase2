@@ -1,0 +1,12 @@
+<resources>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="padding_default">8dp</dimen>
+    <dimen name="padding_radio_btn">4dp</dimen>
+    <dimen name="leftgap_radio_btn">1dp</dimen>
+    <dimen name="margin_default">8dp</dimen>
+    <dimen name="gradient_height">50dp</dimen>
+    <dimen name="dtl_poster_width">150dp</dimen>
+    <dimen name="dtl_poster_height">200dp</dimen>
+    <dimen name="margin_wide">16dp</dimen>
+    <dimen name="dtl_title_textsize">24sp</dimen>
+</resources>
