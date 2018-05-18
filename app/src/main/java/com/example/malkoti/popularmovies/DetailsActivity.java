@@ -1,7 +1,6 @@
 package com.example.malkoti.popularmovies;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -16,14 +15,12 @@ import com.example.malkoti.popularmovies.utils.ApiClient;
 import com.example.malkoti.popularmovies.utils.MovieApiRetrofitInterface;
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class DetailsActivity extends AppCompatActivity {
-    private final String apiKey = BuildConfig.apiKey;
     public static final String MOVIE_INTENT_KEY = "MOVIE_ID";
 
     private final String LOG_TAG = DetailsActivity.class.getSimpleName();
@@ -66,6 +63,7 @@ public class DetailsActivity extends AppCompatActivity {
         final ImageView backdrop = findViewById(R.id.dtl_backdrop_img);
         final ImageView poster = findViewById(R.id.dtl_poster_img);
 
+        String apiKey = BuildConfig.apiKey;
         Call<Movie> call = ApiClient.getApiInterface().getMovieDetails(movieId, apiKey);
 
         call.enqueue(new Callback<Movie>() {

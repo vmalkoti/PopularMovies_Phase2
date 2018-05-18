@@ -1,17 +1,13 @@
 package com.example.malkoti.popularmovies;
 
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.malkoti.popularmovies.model.Movie;
 import com.example.malkoti.popularmovies.utils.MovieApiRetrofitInterface;
@@ -75,10 +71,10 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
     /**
      * ViewHolder implementation class for the adapter
      */
-    public class MovieViewHolder extends RecyclerView.ViewHolder {
-        public ImageView mPoster;
+    class MovieViewHolder extends RecyclerView.ViewHolder {
+        ImageView mPoster;
 
-        public MovieViewHolder(View itemView) {
+        MovieViewHolder(View itemView) {
             super(itemView);
 
             this.mPoster = itemView.findViewById(R.id.poster_img);
