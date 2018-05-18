@@ -107,6 +107,10 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_nav_bar"
         app:layout_constraintTop_toBottomOf="@+id/search_movie_tv" />
 
+    <!--
+    example from
+    https://medium.com/@hitherejoe/exploring-the-android-design-support-library-bottom-navigation-drawer-548de699e8e0
+    -->
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_nav_bar"
         android:layout_width="0dp"
