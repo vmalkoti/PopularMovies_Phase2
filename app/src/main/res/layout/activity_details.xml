@@ -68,6 +68,7 @@
             android:layout_marginStart="@dimen/margin_wide"
             android:layout_marginTop="@dimen/margin_default"
             android:max="@string/max_stars"
+            android:visibility="invisible"
             android:progressTint="@color/ratingStarTint"
             app:layout_constraintStart_toEndOf="@id/dtl_poster_img"
             app:layout_constraintTop_toBottomOf="@id/dtl_movie_title_tv"

@@ -1,6 +1,7 @@
 package com.example.malkoti.popularmovies;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -14,11 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import android.support.design.widget.BottomNavigationView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.malkoti.popularmovies.model.Movie;
@@ -31,7 +30,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity
+        extends AppCompatActivity
+        implements MoviesAdapter.MovieAdapterOnClickHandler {
     private RecyclerView mMoviesListView;
     private EditText mSearchText;
     private ImageButton mSearchButton;
@@ -42,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private final String apiKey = BuildConfig.apiKey;
 
-    public static final String MOVIE_INTENT_KEY = "MOVIE_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         mMoviesListView.setHasFixedSize(true);
         mMoviesListView.setLayoutManager(new GridLayoutManager(MainActivity.this, gridColumns));
-        mAdapter = new MoviesAdapter(MainActivity.this, null);
+        mAdapter = new MoviesAdapter(this);
         mMoviesListView.setAdapter(mAdapter);
 
         mTabRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -71,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // load when activity starts
-        loadMovieList(R.id.most_popular_btn);
 
         BottomNavigationView bottomNavBar = findViewById(R.id.bottom_nav_bar);
         bottomNavBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -93,6 +91,12 @@ public class MainActivity extends AppCompatActivity {
                 searchMovies(searchText);
             }
         });
+
+
+        // Load data when activity starts
+        // Default selection is Most Popular
+        mTabRadioGroup.check(R.id.most_popular_btn);
+        //loadMovieList(mTabRadioGroup.getCheckedRadioButtonId());
 
     }
 
@@ -241,5 +245,13 @@ public class MainActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
+
+    public void onItemClick(Movie movie) {
+        Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+        intent.putExtra(DetailsActivity.MOVIE_INTENT_KEY, movie.getId());
+        startActivity(intent);
+    }
+
 }
 

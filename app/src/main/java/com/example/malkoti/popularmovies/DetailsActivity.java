@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import retrofit2.Response;
 
 public class DetailsActivity extends AppCompatActivity {
     private final String apiKey = BuildConfig.apiKey;
+    public static final String MOVIE_INTENT_KEY = "MOVIE_ID";
 
     private final String LOG_TAG = DetailsActivity.class.getSimpleName();
 
@@ -32,8 +34,7 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        int selectedMovieId = getIntent().getIntExtra(MainActivity.MOVIE_INTENT_KEY, 0);;
+        int selectedMovieId = getIntent().getIntExtra(MOVIE_INTENT_KEY, 0);;
         loadMovieDetails(selectedMovieId);
     }
 
@@ -83,6 +84,7 @@ public class DetailsActivity extends AppCompatActivity {
 
                 title.setText(movie.getTitle());
                 ratingText.setText(String.valueOf(ratingVal));
+                ratingBar.setVisibility(View.VISIBLE);
                 ratingBar.setRating(ratingVal);
                 tagline.setText(movie.getTagline());
                 releaseDate.setText(movie.getReleaseDate());

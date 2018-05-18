@@ -21,21 +21,27 @@ import java.util.List;
 
 class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
     private List<Movie> mMovies;
-    private Context mContext;
+    private MovieAdapterOnClickHandler mClickHandler;
 
-    public MoviesAdapter(Context context, List<Movie> movies) {
-        this.mContext = context;
-        this.mMovies = movies;
+    /**
+     * Interface to allow activities to handle clicks on movie item
+     */
+    public interface MovieAdapterOnClickHandler {
+        void onItemClick(Movie movie);
+    }
+
+    public MoviesAdapter(MovieAdapterOnClickHandler clickHandler) {
+        this.mClickHandler = clickHandler;
     }
 
     @NonNull
     @Override
-    public MovieViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, int viewType) {
+    public MovieViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater
-                .from(mContext)
-                .inflate(R.layout.movie_item, parent, false);
+                .from(viewGroup.getContext())
+                .inflate(R.layout.movie_item, viewGroup, false);
 
-        return new MovieViewHolder(mContext, view);
+        return new MovieViewHolder(view);
     }
 
     @Override
@@ -72,19 +78,16 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
     public class MovieViewHolder extends RecyclerView.ViewHolder {
         public ImageView mPoster;
 
-        public MovieViewHolder(final Context context, View itemView) {
+        public MovieViewHolder(View itemView) {
             super(itemView);
 
             this.mPoster = itemView.findViewById(R.id.poster_img);
 
-            // for click on item
             mPoster.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Movie movie = mMovies.get(getAdapterPosition());
-                    Intent intent = new Intent(context, DetailsActivity.class);
-                    intent.putExtra(MainActivity.MOVIE_INTENT_KEY, movie.getId());
-                    context.startActivity(intent);
+                Movie movie = mMovies.get(getAdapterPosition());
+                mClickHandler.onItemClick(movie);
                 }
             });
         }
