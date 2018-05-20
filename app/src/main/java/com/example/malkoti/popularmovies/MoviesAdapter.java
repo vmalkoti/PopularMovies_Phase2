@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.malkoti.popularmovies.databinding.MovieItemBinding;
 import com.example.malkoti.popularmovies.model.Movie;
 import com.example.malkoti.popularmovies.utils.MovieApiRetrofitInterface;
 import com.squareup.picasso.Picasso;
@@ -33,16 +34,19 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater
-                .from(viewGroup.getContext())
+        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+        /*
+        View view = inflater
                 .inflate(R.layout.movie_item, viewGroup, false);
-
-        return new MovieViewHolder(view);
+        */
+        MovieItemBinding binding = MovieItemBinding.inflate(inflater, viewGroup, false);
+        return new MovieViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = mMovies.get(position);
+        /*
         String posterUrl = MovieApiRetrofitInterface.IMG_BASE_URL
                 + MovieApiRetrofitInterface.IMG_POSTER_SIZE
                 + movie.getPosterPath();
@@ -51,7 +55,8 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
                 .load(posterUrl)
                 .placeholder(R.mipmap.poster_placeholder)
                 .into(holder.mPoster);
-
+        */
+        holder.bind(movie);
     }
 
     @Override
@@ -72,20 +77,42 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
      * ViewHolder implementation class for the adapter
      */
     class MovieViewHolder extends RecyclerView.ViewHolder {
-        ImageView mPoster;
+        //ImageView mPoster;
+        private MovieItemBinding binding;
 
-        MovieViewHolder(View itemView) {
+        MovieViewHolder(MovieItemBinding binding) {
+            /*
             super(itemView);
 
             this.mPoster = itemView.findViewById(R.id.poster_img);
+            */
+            super(binding.getRoot());
+            this.binding = binding;
+        }
 
-            mPoster.setOnClickListener(new View.OnClickListener() {
+        /**
+         * Method to bind viewholder to a Movie object
+         * @param movie Movie to be displayed in grid and details
+         */
+        public void bind(Movie movie) {
+            String posterUrl = MovieApiRetrofitInterface.IMG_BASE_URL
+                    + MovieApiRetrofitInterface.IMG_POSTER_SIZE
+                    + movie.getPosterPath();
+
+            Picasso.get()
+                    .load(posterUrl)
+                    .placeholder(R.mipmap.poster_placeholder)
+                    .into(binding.posterImg);
+
+            binding.posterImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                Movie movie = mMovies.get(getAdapterPosition());
-                mClickHandler.onItemClick(movie);
+                    Movie movie = mMovies.get(getAdapterPosition());
+                    mClickHandler.onItemClick(movie);
                 }
             });
+
+            binding.executePendingBindings();
         }
     }
 }

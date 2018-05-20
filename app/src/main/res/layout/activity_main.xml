@@ -1,128 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
 
-    <RadioGroup
-        android:id="@+id/tab_buttons"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="@dimen/padding_default"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+<layout>
 
-        <RadioButton
-            android:id="@+id/most_popular_btn"
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+
+        <RadioGroup
+            android:id="@+id/tab_buttons"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="@dimen/padding_default"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RadioButton
+                android:id="@+id/most_popular_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/leftgap_radio_btn"
+                android:layout_marginStart="@dimen/leftgap_radio_btn"
+                android:background="@drawable/radio_tab_selector"
+                android:button="@null"
+                android:padding="@dimen/padding_radio_btn"
+                android:text="@string/most_popular"
+                android:textColor="@android:color/white" />
+
+
+            <RadioButton
+                android:id="@+id/top_rated_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/leftgap_radio_btn"
+                android:layout_marginStart="@dimen/leftgap_radio_btn"
+                android:background="@drawable/radio_tab_selector"
+                android:button="@null"
+                android:padding="@dimen/padding_radio_btn"
+                android:text="@string/top_rated"
+                android:textColor="@android:color/white" />
+
+            <RadioButton
+                android:id="@+id/upcoming_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/leftgap_radio_btn"
+                android:layout_marginStart="@dimen/leftgap_radio_btn"
+                android:background="@drawable/radio_tab_selector"
+                android:button="@null"
+                android:padding="@dimen/padding_radio_btn"
+                android:text="@string/upcoming"
+                android:textColor="@android:color/white" />
+
+            <RadioButton
+                android:id="@+id/now_playing_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/leftgap_radio_btn"
+                android:layout_marginStart="@dimen/leftgap_radio_btn"
+                android:background="@drawable/radio_tab_selector"
+                android:button="@null"
+                android:padding="@dimen/padding_radio_btn"
+                android:text="@string/now_playing"
+                android:textColor="@android:color/white" />
+
+        </RadioGroup>
+
+        <!-- Search fields -->
+
+        <EditText
+            android:id="@+id/search_movie_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin_default"
+            android:layout_marginStart="@dimen/margin_default"
+            android:layout_marginTop="@dimen/margin_default"
+            android:hint="@string/search_hint"
+            android:inputType="text"
+            app:layout_constraintEnd_toStartOf="@+id/search_movie_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tab_buttons" />
+
+        <ImageButton
+            android:id="@+id/search_movie_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/leftgap_radio_btn"
-            android:layout_marginStart="@dimen/leftgap_radio_btn"
-            android:background="@drawable/radio_tab_selector"
-            android:button="@null"
-            android:padding="@dimen/padding_radio_btn"
-            android:text="@string/most_popular"
-            android:textColor="@android:color/white" />
+            android:layout_marginBottom="@dimen/margin_default"
+            android:layout_marginEnd="@dimen/margin_default"
+            android:layout_marginRight="@dimen/margin_default"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/content_desc_search_btn"
+            app:layout_constraintBottom_toBottomOf="@+id/search_movie_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_baseline_search_24px" />
 
+        <!-- List of movies -->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/margin_default"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_nav_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_movie_tv" />
 
-        <RadioButton
-            android:id="@+id/top_rated_btn"
-            android:layout_width="wrap_content"
+        <!--
+        example from
+        https://medium.com/@hitherejoe/exploring-the-android-design-support-library-bottom-navigation-drawer-548de699e8e0
+        -->
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/bottom_nav_bar"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/leftgap_radio_btn"
-            android:layout_marginStart="@dimen/leftgap_radio_btn"
-            android:background="@drawable/radio_tab_selector"
-            android:button="@null"
-            android:padding="@dimen/padding_radio_btn"
-            android:text="@string/top_rated"
-            android:textColor="@android:color/white" />
+            app:itemBackground="@android:color/white"
+            app:itemIconTint="@color/colorAccent"
+            app:itemTextColor="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:menu="@menu/main_menu" />
 
-        <RadioButton
-            android:id="@+id/upcoming_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/leftgap_radio_btn"
-            android:layout_marginStart="@dimen/leftgap_radio_btn"
-            android:background="@drawable/radio_tab_selector"
-            android:button="@null"
-            android:padding="@dimen/padding_radio_btn"
-            android:text="@string/upcoming"
-            android:textColor="@android:color/white" />
+    </android.support.constraint.ConstraintLayout>
 
-        <RadioButton
-            android:id="@+id/now_playing_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/leftgap_radio_btn"
-            android:layout_marginStart="@dimen/leftgap_radio_btn"
-            android:background="@drawable/radio_tab_selector"
-            android:button="@null"
-            android:padding="@dimen/padding_radio_btn"
-            android:text="@string/now_playing"
-            android:textColor="@android:color/white" />
-
-    </RadioGroup>
-
-    <!-- Search fields -->
-
-    <EditText
-        android:id="@+id/search_movie_tv"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="text"
-        android:layout_marginLeft="@dimen/margin_default"
-        android:layout_marginStart="@dimen/margin_default"
-        android:layout_marginTop="@dimen/margin_default"
-        android:hint="@string/search_hint"
-        app:layout_constraintEnd_toStartOf="@+id/search_movie_btn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tab_buttons" />
-
-    <ImageButton
-        android:id="@+id/search_movie_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_default"
-        android:layout_marginEnd="@dimen/margin_default"
-        android:layout_marginRight="@dimen/margin_default"
-        android:contentDescription="@string/content_desc_search_btn"
-        android:background="@android:color/transparent"
-        app:layout_constraintBottom_toBottomOf="@+id/search_movie_tv"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_baseline_search_24px" />
-
-    <!-- List of movies -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/margin_default"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_nav_bar"
-        app:layout_constraintTop_toBottomOf="@+id/search_movie_tv" />
-
-    <!--
-    example from
-    https://medium.com/@hitherejoe/exploring-the-android-design-support-library-bottom-navigation-drawer-548de699e8e0
-    -->
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/bottom_nav_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:itemBackground="@android:color/white"
-        app:itemIconTint="@color/colorAccent"
-        app:itemTextColor="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/main_menu" />
-
-</android.support.constraint.ConstraintLayout>
+</layout>

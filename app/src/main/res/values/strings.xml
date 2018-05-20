@@ -15,4 +15,7 @@
     <string name="search_menu">Search</string>
     <string name="about_menu">About</string>
     <string name="content_desc_search_btn">Search button</string>
+    <string name="error_message">Error getting search results</string>
+    <string name="disclaimer_text">Popular Movies app for Udacity Android Nanodegree course.\n\n
+        This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
 </resources>

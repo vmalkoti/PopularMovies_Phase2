@@ -3,6 +3,7 @@ package com.example.malkoti.popularmovies;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.example.malkoti.popularmovies.databinding.ActivityMainBinding;
 import com.example.malkoti.popularmovies.model.Movie;
 import com.example.malkoti.popularmovies.model.SearchResult;
 import com.example.malkoti.popularmovies.utils.ApiClient;
@@ -33,47 +35,43 @@ import retrofit2.Response;
 public class MainActivity
         extends AppCompatActivity
         implements MoviesAdapter.MovieAdapterOnClickHandler {
+    /*
     private RecyclerView mMoviesListView;
     private EditText mSearchText;
     private ImageButton mSearchButton;
     private RadioGroup mTabRadioGroup;
+    */
     private MoviesAdapter mAdapter;
 
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private final String apiKey = BuildConfig.apiKey;
 
+    ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         int orientation = getResources().getConfiguration().orientation;
         int gridColumns = orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2;
 
-        mSearchText = findViewById(R.id.search_movie_tv);
-        mSearchButton = findViewById(R.id.search_movie_btn);
-        mMoviesListView = findViewById(R.id.recyclerView);
-        mTabRadioGroup = findViewById(R.id.tab_buttons);
-
         showSearchFields(false);
 
-        mMoviesListView.setHasFixedSize(true);
-        mMoviesListView.setLayoutManager(new GridLayoutManager(MainActivity.this, gridColumns));
+        binding.recyclerView.setHasFixedSize(true);
+        binding.recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, gridColumns));
         mAdapter = new MoviesAdapter(this);
-        mMoviesListView.setAdapter(mAdapter);
+        binding.recyclerView.setAdapter(mAdapter);
 
-        mTabRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        binding.tabButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
             loadMovieList(checkedId);
             }
         });
 
-
-        BottomNavigationView bottomNavBar = findViewById(R.id.bottom_nav_bar);
-        bottomNavBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        binding.bottomNavBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             loadAppScreen(item.getItemId());
@@ -81,22 +79,17 @@ public class MainActivity
             }
         });
 
-        mSearchButton = findViewById(R.id.search_movie_btn);
-        mSearchButton.setOnClickListener(new View.OnClickListener() {
+        binding.searchMovieBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EditText searchField =  findViewById(R.id.search_movie_tv);
                 String searchText = searchField.getText().toString();
-                Log.d(LOG_TAG, "Searching for " + searchText);
                 searchMovies(searchText);
             }
         });
 
-
-        // Load data when activity starts
         // Default selection is Most Popular
-        mTabRadioGroup.check(R.id.most_popular_btn);
-        //loadMovieList(mTabRadioGroup.getCheckedRadioButtonId());
+        binding.tabButtons.check(R.id.most_popular_btn);
 
     }
 
@@ -110,12 +103,12 @@ public class MainActivity
 
         if(!show) {
             visibility = View.GONE;
-            mSearchText.requestFocus();
+            binding.searchMovieTv.requestFocus();
         } else {
             visibility = View.VISIBLE;
         }
-        mSearchText.setVisibility(visibility);
-        mSearchButton.setVisibility(visibility);
+        binding.searchMovieTv.setVisibility(visibility);
+        binding.searchMovieBtn.setVisibility(visibility);
     }
 
 
@@ -148,14 +141,13 @@ public class MainActivity
             @Override
             public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
                 SearchResult searchResult = response.body();
-                //int page = searchResult.pageNum;
                 List<Movie> movies = searchResult.moviesList;
                 mAdapter.changeData(movies);
             }
 
             @Override
             public void onFailure(Call<SearchResult> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Error getting list of movies from internet", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, R.string.error_message, Toast.LENGTH_LONG).show();
                 Log.e(LOG_TAG, "Error getting list of movies from internet " + optionSelected
                         + ". \nERROR : " + t.getMessage());
             }
@@ -171,15 +163,14 @@ public class MainActivity
         switch (menuOptionSelected) {
             case R.id.view_movies_action:
                 showSearchFields(false);
-                mMoviesListView.setVisibility(View.VISIBLE);
-                mTabRadioGroup.setVisibility(View.VISIBLE);
-                // reload movies list as we are coming from a different screen
-                loadMovieList(mTabRadioGroup.getCheckedRadioButtonId());
+                binding.recyclerView.setVisibility(View.VISIBLE);
+                binding.tabButtons.setVisibility(View.VISIBLE);
+                loadMovieList(binding.tabButtons.getCheckedRadioButtonId());
                 break;
             case R.id.search_movie_action:
                 showSearchFields(true);
-                mMoviesListView.setVisibility(View.INVISIBLE);
-                mTabRadioGroup.setVisibility(View.GONE);
+                binding.recyclerView.setVisibility(View.INVISIBLE);
+                binding.tabButtons.setVisibility(View.GONE);
                 break;
             case R.id.view_app_info_action:
                 showAppCredits();
@@ -203,20 +194,20 @@ public class MainActivity
                 @Override
                 public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
                     SearchResult searchResult = response.body();
-                    //int page = searchResult.pageNum;
                     List<Movie> movies = searchResult.moviesList;  // pass it to mAdapter
                     mAdapter.changeData(movies);
                     if(movies != null && movies.size()>0) {
-                        mMoviesListView.setVisibility(View.VISIBLE);
+                        binding.recyclerView.setVisibility(View.VISIBLE);
                     } else {
-                        mMoviesListView.setVisibility(View.INVISIBLE);
+                        binding.recyclerView.setVisibility(View.INVISIBLE);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<SearchResult> call, Throwable t) {
-                    Toast.makeText(MainActivity.this, "Error getting search results", Toast.LENGTH_LONG).show();
-                    Log.e(LOG_TAG, "Error getting search results "
+                    Toast.makeText(MainActivity.this, R.string.error_message,
+                            Toast.LENGTH_LONG).show();
+                    Log.e(LOG_TAG, R.string.error_message
                             + ". \nERROR : " + t.getMessage());
                 }
             });
@@ -225,12 +216,10 @@ public class MainActivity
 
     /**
      * Show app credits - TMDB specifically, per API agreement
-     * This method currently shows an AlertDialog, but may be changed to future to load a fragment/activity instead
      */
     private void showAppCredits() {
         String dialogTitle = "Credits";
-        String dialogContent = "Popular Movies app for Udacity Android Nanodegree course.\n"
-                + "This product uses the TMDb API but is not endorsed or certified by TMDb.";
+        String dialogContent = getString(R.string.disclaimer_text);
         String dialogButtonText = "OK";
 
         AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).create();
@@ -246,7 +235,10 @@ public class MainActivity
         dialog.show();
     }
 
-
+    /**
+     * Method implemented for onclick interface
+     * @param movie Movie object of item clicked
+     */
     public void onItemClick(Movie movie) {
         Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
         intent.putExtra(DetailsActivity.MOVIE_INTENT_KEY, movie.getId());
