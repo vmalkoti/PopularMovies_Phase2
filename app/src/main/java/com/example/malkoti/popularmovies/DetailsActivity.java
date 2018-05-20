@@ -29,13 +29,20 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+
+        /*
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        */
 
         int selectedMovieId = getIntent().getIntExtra(MOVIE_INTENT_KEY, 0);;
         loadMovieDetails(selectedMovieId);
     }
 
-
+    /*
+     * Don't need to go this route.
+     * Setting MainActivity's launchMode as singleTop
+     * to ensure that user gets back to the right list
+     *
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -47,6 +54,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    */
 
     private void loadMovieDetails(final int movieId) {
         // URL for details page, in onclick of mAdapter
