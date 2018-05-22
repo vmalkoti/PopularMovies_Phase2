@@ -1,5 +1,11 @@
 # Popular Movies - Phase1
-Code for Udacity Android Developer Nanodegree Project 2 - Popular Movies, Phase 1
+Code for Udacity Android Developer Nanodegree Project 2 - Popular Movies, Phase 2
+
+**New in Phase 2**
+1. Show trailers on movie details activity
+2. Show reviews on movie details activity
+3. Implement *SQLiteDatabase* and *ContentProvider* 
+4. Provide "Favorites" functionality
 
 
 This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get movie lists, images and information. Please get an API key to use this app and define it in your gradle build system.
