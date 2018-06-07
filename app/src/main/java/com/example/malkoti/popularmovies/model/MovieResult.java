@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 
-public class SearchResult {
+public class MovieResult {
 
     @SerializedName("page")
     public int pageNum;
@@ -14,3 +14,5 @@ public class SearchResult {
     @SerializedName("results")
     public List<Movie> moviesList;
 }
+
+

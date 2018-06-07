@@ -19,3 +19,4 @@ This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get mov
 1. Retrofit
 2. Picasso
 3. Data Binding
+4. Room

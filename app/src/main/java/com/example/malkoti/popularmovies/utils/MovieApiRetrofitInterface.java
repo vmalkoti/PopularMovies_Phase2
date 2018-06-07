@@ -1,7 +1,9 @@
 package com.example.malkoti.popularmovies.utils;
 
 import com.example.malkoti.popularmovies.model.Movie;
-import com.example.malkoti.popularmovies.model.SearchResult;
+import com.example.malkoti.popularmovies.model.MovieResult;
+import com.example.malkoti.popularmovies.model.ReviewResult;
+import com.example.malkoti.popularmovies.model.TrailerResult;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -15,20 +17,26 @@ public interface MovieApiRetrofitInterface {
     String IMG_BKDROP_SIZE = "w780";
 
     @GET("movie/popular")
-    Call<SearchResult> getPopularMovies(@Query("api_key") String apiKey);
+    Call<MovieResult> getPopularMovies(@Query("api_key") String apiKey);
 
     @GET("movie/top_rated")
-    Call<SearchResult> getTopRatedMovies(@Query("api_key") String apiKey);
+    Call<MovieResult> getTopRatedMovies(@Query("api_key") String apiKey);
 
     @GET("movie/upcoming")
-    Call<SearchResult> getUpcomingMovies(@Query("api_key") String api_key);
+    Call<MovieResult> getUpcomingMovies(@Query("api_key") String api_key);
 
     @GET("movie/now_playing")
-    Call<SearchResult> getNowPlayingMovies(@Query("api_key") String api_key);
+    Call<MovieResult> getNowPlayingMovies(@Query("api_key") String api_key);
 
     @GET("search/movie")
-    Call<SearchResult> getSearchResults(@Query("api_key") String api_key, @Query("query") String keywords);
+    Call<MovieResult> getMovieResults(@Query("api_key") String api_key, @Query("query") String keywords);
 
     @GET("movie/{movieId}")
     Call<Movie> getMovieDetails(@Path("movieId") int movieId, @Query("api_key") String api_key);
+
+    @GET("movie/{movieId}/videos")
+    Call<TrailerResult> getMovieTrailers(@Path("movieId") int movieId, @Query("api_key") String api_key);
+
+    @GET("movie/{movieId}/reviews")
+    Call<ReviewResult> getMovieReviews(@Path("movieId") int movieId, @Query("api_key") String api_key);
 }

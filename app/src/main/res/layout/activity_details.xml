@@ -7,7 +7,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         tools:context=".DetailsActivity">
 
         <android.support.constraint.ConstraintLayout
@@ -17,7 +17,7 @@
             <ImageView
                 android:id="@+id/dtl_backdrop_img"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/backdrop_height"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/content_desc_backdrop"
                 android:scaleType="centerCrop"
@@ -70,7 +70,6 @@
                 android:layout_marginTop="@dimen/margin_default"
                 android:max="@string/max_stars"
                 android:progressTint="@color/ratingStarTint"
-                android:visibility="invisible"
                 app:layout_constraintStart_toEndOf="@id/dtl_poster_img"
                 app:layout_constraintTop_toBottomOf="@id/dtl_movie_title_tv"
                 tools:rating="4.5" />
@@ -126,12 +125,30 @@
                 android:layout_marginRight="@dimen/margin_wide"
                 android:layout_marginStart="@dimen/margin_wide"
                 android:layout_marginTop="@dimen/margin_default"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/dtl_poster_img"
-                tools:text="@tools:sample/lorem/random" />
+                tools:text="@tools:sample/lorem[30]" />
 
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/trailers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="horizontal"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/summary_tv" />
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/trailers" />
 
         </android.support.constraint.ConstraintLayout>
 

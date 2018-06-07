@@ -10,17 +10,22 @@
         android:layout_height="wrap_content">
 
 
-        <ImageView
-            android:id="@+id/poster_img"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/review_author_tv"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/content_desc_poster"
-            android:scaleType="centerCrop"
+            android:textStyle="bold"
+            android:layout_marginTop="@dimen/margin_default"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:background="@tools:sample/backgrounds/scenic" />
+            tools:text="@tools:sample/lorem" />
 
+        <TextView
+            android:id="@+id/review_content_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@tools:sample/lorem[15]"
+            app:layout_constraintTop_toBottomOf="@id/review_author_tv" />
 
     </android.support.constraint.ConstraintLayout>
 

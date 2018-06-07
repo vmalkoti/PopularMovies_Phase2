@@ -35,10 +35,6 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        /*
-        View view = inflater
-                .inflate(R.layout.movie_item, viewGroup, false);
-        */
         MovieItemBinding binding = MovieItemBinding.inflate(inflater, viewGroup, false);
         return new MovieViewHolder(binding);
     }
@@ -46,16 +42,6 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = mMovies.get(position);
-        /*
-        String posterUrl = MovieApiRetrofitInterface.IMG_BASE_URL
-                + MovieApiRetrofitInterface.IMG_POSTER_SIZE
-                + movie.getPosterPath();
-
-        Picasso.get()
-                .load(posterUrl)
-                .placeholder(R.mipmap.poster_placeholder)
-                .into(holder.mPoster);
-        */
         holder.bind(movie);
     }
 
@@ -81,11 +67,6 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
         private MovieItemBinding binding;
 
         MovieViewHolder(MovieItemBinding binding) {
-            /*
-            super(itemView);
-
-            this.mPoster = itemView.findViewById(R.id.poster_img);
-            */
             super(binding.getRoot());
             this.binding = binding;
         }

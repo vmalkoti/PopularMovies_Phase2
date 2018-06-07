@@ -23,7 +23,8 @@ import android.widget.Toast;
 
 import com.example.malkoti.popularmovies.databinding.ActivityMainBinding;
 import com.example.malkoti.popularmovies.model.Movie;
-import com.example.malkoti.popularmovies.model.SearchResult;
+import com.example.malkoti.popularmovies.model.MovieResult;
+import com.example.malkoti.popularmovies.model.MovieResult;
 import com.example.malkoti.popularmovies.utils.ApiClient;
 
 import java.util.List;
@@ -67,15 +68,15 @@ public class MainActivity
         binding.tabButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-            loadMovieList(checkedId);
+                loadMovieList(checkedId);
             }
         });
 
         binding.bottomNavBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            loadAppScreen(item.getItemId());
-            return true;
+                loadAppScreen(item.getItemId());
+                return true;
             }
         });
 
@@ -117,7 +118,7 @@ public class MainActivity
      * @param optionSelected ID of radio button selected
      */
     private void loadMovieList(final int optionSelected) {
-        Call<SearchResult> call;
+        Call<MovieResult> call;
 
         switch (optionSelected) {
             case R.id.most_popular_btn:
@@ -137,16 +138,16 @@ public class MainActivity
                 break;
         }
 
-        call.enqueue(new Callback<SearchResult>() {
+        call.enqueue(new Callback<MovieResult>() {
             @Override
-            public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
-                SearchResult searchResult = response.body();
-                List<Movie> movies = searchResult.moviesList;
+            public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
+                MovieResult MovieResult = response.body();
+                List<Movie> movies = MovieResult.moviesList;
                 mAdapter.changeData(movies);
             }
 
             @Override
-            public void onFailure(Call<SearchResult> call, Throwable t) {
+            public void onFailure(Call<MovieResult> call, Throwable t) {
                 Toast.makeText(MainActivity.this, R.string.error_message, Toast.LENGTH_LONG).show();
                 Log.e(LOG_TAG, "Error getting list of movies from internet " + optionSelected
                         + ". \nERROR : " + t.getMessage());
@@ -187,14 +188,14 @@ public class MainActivity
             String encodedSearchText = Uri.encode(keywords);
             Log.d(LOG_TAG, "Searching for encoded " + encodedSearchText);
 
-            Call<SearchResult> call = ApiClient.getApiInterface().getSearchResults(apiKey, keywords);
+            Call<MovieResult> call = ApiClient.getApiInterface().getMovieResults(apiKey, keywords);
             Log.d(LOG_TAG, "URL formed " + call.request().url().toString());
 
-            call.enqueue(new Callback<SearchResult>() {
+            call.enqueue(new Callback<MovieResult>() {
                 @Override
-                public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
-                    SearchResult searchResult = response.body();
-                    List<Movie> movies = searchResult.moviesList;  // pass it to mAdapter
+                public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
+                    MovieResult MovieResult = response.body();
+                    List<Movie> movies = MovieResult.moviesList;  // pass it to mAdapter
                     mAdapter.changeData(movies);
                     if(movies != null && movies.size()>0) {
                         binding.recyclerView.setVisibility(View.VISIBLE);
@@ -204,7 +205,7 @@ public class MainActivity
                 }
 
                 @Override
-                public void onFailure(Call<SearchResult> call, Throwable t) {
+                public void onFailure(Call<MovieResult> call, Throwable t) {
                     Toast.makeText(MainActivity.this, R.string.error_message,
                             Toast.LENGTH_LONG).show();
                     Log.e(LOG_TAG, R.string.error_message
@@ -246,4 +247,3 @@ public class MainActivity
     }
 
 }
-

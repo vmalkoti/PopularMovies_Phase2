@@ -8,4 +8,5 @@
     <dimen name="dtl_poster_height">200dp</dimen>
     <dimen name="margin_wide">16dp</dimen>
     <dimen name="dtl_title_textsize">24sp</dimen>
+    <dimen name="backdrop_height">200dp</dimen>
 </resources>
