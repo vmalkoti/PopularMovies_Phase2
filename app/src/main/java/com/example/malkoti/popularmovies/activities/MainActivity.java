@@ -1,31 +1,35 @@
-package com.example.malkoti.popularmovies;
+package com.example.malkoti.popularmovies.activities;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
 import android.support.design.widget.BottomNavigationView;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.example.malkoti.popularmovies.BuildConfig;
+import com.example.malkoti.popularmovies.FavoritesViewModel;
+import com.example.malkoti.popularmovies.R;
+import com.example.malkoti.popularmovies.adapters.MoviesAdapter;
 import com.example.malkoti.popularmovies.databinding.ActivityMainBinding;
-import com.example.malkoti.popularmovies.model.Movie;
 import com.example.malkoti.popularmovies.model.MovieResult;
-import com.example.malkoti.popularmovies.model.MovieResult;
-import com.example.malkoti.popularmovies.utils.ApiClient;
+import com.example.malkoti.popularmovies.network.ApiClient;
+import com.facebook.stetho.Stetho;
 
 import java.util.List;
 
@@ -33,18 +37,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Main or Home screen activity for the app.
+ * Shows a grid of movie posters as thumbnails.
+ * Clicking on a thumbnail shows its details.
+ */
 public class MainActivity
         extends AppCompatActivity
         implements MoviesAdapter.MovieAdapterOnClickHandler {
-    /*
-    private RecyclerView mMoviesListView;
-    private EditText mSearchText;
-    private ImageButton mSearchButton;
-    private RadioGroup mTabRadioGroup;
-    */
+
     private MoviesAdapter mAdapter;
 
+    private FavoritesViewModel viewModel;
 
+    int recyclerPosition = 0;
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private final String apiKey = BuildConfig.apiKey;
 
@@ -64,6 +70,8 @@ public class MainActivity
         binding.recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, gridColumns));
         mAdapter = new MoviesAdapter(this);
         binding.recyclerView.setAdapter(mAdapter);
+        binding.recyclerView.setHasFixedSize(true);
+
 
         binding.tabButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -92,8 +100,37 @@ public class MainActivity
         // Default selection is Most Popular
         binding.tabButtons.check(R.id.most_popular_btn);
 
+        /*
+        if(savedInstanceState != null) {
+            Parcelable parcel = savedInstanceState.getParcelable("ListState");
+            binding.recyclerView.getLayoutManager().onRestoreInstanceState(parcel);
+        }
+        */
+
+        viewModel = ViewModelProviders.of(MainActivity.this).get(FavoritesViewModel.class);
+        Observer<List<MovieResult.Movie>> observer = new Observer<List<MovieResult.Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<MovieResult.Movie> movies) {
+                mAdapter.changeData(movies);
+            }
+        };
+        /*
+        viewModel.getFavoriteMovies().observe(MainActivity.this, observer);
+        */
+
+        Stetho.initializeWithDefaults(MainActivity.this);
+
     }
 
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable("ListState", binding.recyclerView.getLayoutManager().onSaveInstanceState());
+
+    }
 
     /**
      * Display fields needed to search movies
@@ -142,8 +179,9 @@ public class MainActivity
             @Override
             public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
                 MovieResult MovieResult = response.body();
-                List<Movie> movies = MovieResult.moviesList;
+                List<MovieResult.Movie> movies = MovieResult.moviesList;
                 mAdapter.changeData(movies);
+                binding.recyclerView.smoothScrollToPosition(0);
             }
 
             @Override
@@ -195,7 +233,7 @@ public class MainActivity
                 @Override
                 public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
                     MovieResult MovieResult = response.body();
-                    List<Movie> movies = MovieResult.moviesList;  // pass it to mAdapter
+                    List<MovieResult.Movie> movies = MovieResult.moviesList;  // pass it to mAdapter
                     mAdapter.changeData(movies);
                     if(movies != null && movies.size()>0) {
                         binding.recyclerView.setVisibility(View.VISIBLE);
@@ -240,9 +278,9 @@ public class MainActivity
      * Method implemented for onclick interface
      * @param movie Movie object of item clicked
      */
-    public void onItemClick(Movie movie) {
+    public void onItemClick(MovieResult.Movie movie) {
         Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-        intent.putExtra(DetailsActivity.MOVIE_INTENT_KEY, movie.getId());
+        intent.putExtra(DetailsActivity.MOVIE_INTENT_KEY, movie.getMovieId());
         startActivity(intent);
     }
 

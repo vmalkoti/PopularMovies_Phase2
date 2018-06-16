@@ -1,27 +1,32 @@
-package com.example.malkoti.popularmovies;
+package com.example.malkoti.popularmovies.activities;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.malkoti.popularmovies.BuildConfig;
+import com.example.malkoti.popularmovies.FavoritesViewModel;
+import com.example.malkoti.popularmovies.R;
+import com.example.malkoti.popularmovies.adapters.ReviewAdapter;
+import com.example.malkoti.popularmovies.adapters.TrailerAdapter;
 import com.example.malkoti.popularmovies.databinding.ActivityDetailsBinding;
-import com.example.malkoti.popularmovies.model.Movie;
+import com.example.malkoti.popularmovies.model.MovieResult;
 import com.example.malkoti.popularmovies.model.ReviewResult;
 import com.example.malkoti.popularmovies.model.TrailerResult;
-import com.example.malkoti.popularmovies.utils.ApiClient;
-import com.example.malkoti.popularmovies.utils.MovieApiRetrofitInterface;
+import com.example.malkoti.popularmovies.network.ApiClient;
+import com.example.malkoti.popularmovies.network.MovieApiRetrofitInterface;
 import com.squareup.picasso.Picasso;
-
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,21 +34,52 @@ import retrofit2.Response;
 
 public class DetailsActivity extends AppCompatActivity {
     public static final String MOVIE_INTENT_KEY = "MOVIE_ID";
+    public static final String MOVIE_FAVORITE_KEY = "MOVIE_FAVORITE";
     private final String LOG_TAG = DetailsActivity.class.getSimpleName();
     private final String API_KEY = BuildConfig.apiKey;
 
     ActivityDetailsBinding binding;
 
+    private FavoritesViewModel viewModel;
+    private Observer<Integer> observer = new Observer<Integer>() {
+        @Override
+        public void onChanged(@Nullable Integer value) {
+            isFavorite = (value > 0);
+            setFavoriteIcon(isFavorite);
+        }
+    };
+
+    private MovieResult.Movie movie;
+    private boolean isFavorite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_details);
 
-        int selectedMovieId = getIntent().getIntExtra(MOVIE_INTENT_KEY, 0);;
+        int selectedMovieId = getIntent().getIntExtra(MOVIE_INTENT_KEY, 0);
+        isFavorite = getIntent().getBooleanExtra(MOVIE_FAVORITE_KEY, false);
+
         getMovieDetails(selectedMovieId);
         loadTrailers(selectedMovieId);
         loadReviews(selectedMovieId);
+
+        viewModel = ViewModelProviders.of(DetailsActivity.this).get(FavoritesViewModel.class);
+
+
+        binding.favoriteIconImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // set image resource to border or filled image
+                // and insert or delete movie from db
+                if(!isFavorite) {
+                    viewModel.insertFavorite(movie);
+
+                } else {
+                    viewModel.deleteFavorite(movie);
+                }
+            }
+        });
     }
 
     /**
@@ -51,17 +87,18 @@ public class DetailsActivity extends AppCompatActivity {
      * @param movieId ID of movie to fetch
      */
     private void getMovieDetails(final int movieId) {
-        Call<Movie> call = ApiClient.getApiInterface().getMovieDetails(movieId, API_KEY);
+        Call<MovieResult.Movie> call = ApiClient.getApiInterface().getMovieDetails(movieId, API_KEY);
 
-        call.enqueue(new Callback<Movie>() {
+        call.enqueue(new Callback<MovieResult.Movie>() {
             @Override
-            public void onResponse(Call<Movie> call, Response<Movie> response) {
-                Movie movie = response.body();
+            public void onResponse(Call<MovieResult.Movie> call, Response<MovieResult.Movie> response) {
+                movie = response.body();
                 loadMovieDetailsIntoViews(movie);
+                viewModel.isFavorite(movie).observe(DetailsActivity.this, observer);
             }
 
             @Override
-            public void onFailure(Call<Movie> call, Throwable t) {
+            public void onFailure(Call<MovieResult.Movie> call, Throwable t) {
                 Toast.makeText(DetailsActivity.this, "Error getting movie details", Toast.LENGTH_SHORT).show();
                 Log.e(LOG_TAG, "Error getting movie details " + movieId
                     + ". \nERROR : " + t.getMessage());
@@ -73,8 +110,8 @@ public class DetailsActivity extends AppCompatActivity {
      * Load movie information into Views
      * @param movie Movie object to map to views
      */
-    private void loadMovieDetailsIntoViews(Movie movie) {
-        float ratingVal = movie.getRating()/2;
+    private void loadMovieDetailsIntoViews(MovieResult.Movie movie) {
+        float ratingVal = movie.getMovieRating()/2;
         String posterUrl = MovieApiRetrofitInterface.IMG_BASE_URL
                 +MovieApiRetrofitInterface.IMG_POSTER_SIZE
                 + movie.getPosterPath();
@@ -82,13 +119,14 @@ public class DetailsActivity extends AppCompatActivity {
                 + MovieApiRetrofitInterface.IMG_BKDROP_SIZE
                 + movie.getBackdropPath();
 
-        setTitle(movie.getTitle());
+        setTitle(movie.getMovieTitle());
 
-        binding.dtlMovieTitleTv.setText(movie.getTitle());
+        binding.dtlMovieTitleTv.setText(movie.getMovieTitle());
         binding.ratingTv.setText(String.valueOf(ratingVal));
         binding.ratingBar.setVisibility(View.VISIBLE);
         binding.ratingBar.setRating(ratingVal);
         binding.taglineTv.setText(movie.getTagline());
+        binding.languageTv.setText(movie.getLanguage());
         binding.releaseDateTv.setText(movie.getReleaseDate());
         binding.summaryTv.setText(movie.getOverview());
 
@@ -103,6 +141,10 @@ public class DetailsActivity extends AppCompatActivity {
                 .into(binding.dtlBackdropImg);
     }
 
+    private void setFavoriteIcon(boolean isFavorite) {
+        int imgId = isFavorite ? R.drawable.ic_baseline_favorite_filled : R.drawable.ic_baseline_favorite_border;
+        binding.favoriteIconImg.setBackgroundResource(imgId);
+    }
 
     private void loadTrailers(final int movieId) {
         //  https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key={api_key}
@@ -137,7 +179,7 @@ public class DetailsActivity extends AppCompatActivity {
             public void onResponse(Call<TrailerResult> call, Response<TrailerResult> response) {
                 TrailerResult result = response.body();
                 adapter.setData(result.getTrailersList());
-                Log.d(LOG_TAG, "Items = " + result.getTrailersList().size());
+                //Log.d(LOG_TAG, "Items = " + result.getTrailersList().size());
             }
 
             @Override
@@ -147,12 +189,9 @@ public class DetailsActivity extends AppCompatActivity {
                         + ". \nERROR : " + t.getMessage());
             }
         });
-
-        // video url : https://www.youtube.com/watch?v={key}
     }
 
     private void loadReviews(final int movieId) {
-        // https://api.themoviedb.org/3/movie/83542/reviews?api_key={api_key}
         final ReviewAdapter adapter = new ReviewAdapter();
         binding.reviews.setAdapter(adapter);
         binding.reviews.setLayoutManager(

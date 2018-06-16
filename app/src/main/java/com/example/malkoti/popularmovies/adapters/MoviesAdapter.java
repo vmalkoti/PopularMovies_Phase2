@@ -1,4 +1,4 @@
-package com.example.malkoti.popularmovies;
+package com.example.malkoti.popularmovies.adapters;
 
 
 import android.support.annotation.NonNull;
@@ -7,24 +7,24 @@ import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
+import com.example.malkoti.popularmovies.R;
 import com.example.malkoti.popularmovies.databinding.MovieItemBinding;
-import com.example.malkoti.popularmovies.model.Movie;
-import com.example.malkoti.popularmovies.utils.MovieApiRetrofitInterface;
+import com.example.malkoti.popularmovies.model.MovieResult;
+import com.example.malkoti.popularmovies.network.MovieApiRetrofitInterface;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
-    private List<Movie> mMovies;
+public class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
+    private List<MovieResult.Movie> mMovies;
     private MovieAdapterOnClickHandler mClickHandler;
 
     /**
      * Interface to allow activities to handle clicks on movie item
      */
     public interface MovieAdapterOnClickHandler {
-        void onItemClick(Movie movie);
+        void onItemClick(MovieResult.Movie movie);
     }
 
     public MoviesAdapter(MovieAdapterOnClickHandler clickHandler) {
@@ -41,7 +41,7 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        Movie movie = mMovies.get(position);
+        MovieResult.Movie movie = mMovies.get(position);
         holder.bind(movie);
     }
 
@@ -54,7 +54,7 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
      * Method to change data in the adapter
      * @param movies List of movie objects to use for RecyclerView
      */
-    public void changeData(List<Movie> movies) {
+    public void changeData(List<MovieResult.Movie> movies) {
         this.mMovies = movies;
         notifyDataSetChanged();
     }
@@ -75,7 +75,7 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
          * Method to bind viewholder to a Movie object
          * @param movie Movie to be displayed in grid and details
          */
-        public void bind(Movie movie) {
+        public void bind(MovieResult.Movie movie) {
             String posterUrl = MovieApiRetrofitInterface.IMG_BASE_URL
                     + MovieApiRetrofitInterface.IMG_POSTER_SIZE
                     + movie.getPosterPath();
@@ -88,7 +88,7 @@ class MoviesAdapter extends Adapter<MoviesAdapter.MovieViewHolder> {
             binding.posterImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Movie movie = mMovies.get(getAdapterPosition());
+                    MovieResult.Movie movie = mMovies.get(getAdapterPosition());
                     mClickHandler.onItemClick(movie);
                 }
             });

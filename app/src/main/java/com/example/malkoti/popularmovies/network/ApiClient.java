@@ -1,4 +1,4 @@
-package com.example.malkoti.popularmovies.utils;
+package com.example.malkoti.popularmovies.network;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

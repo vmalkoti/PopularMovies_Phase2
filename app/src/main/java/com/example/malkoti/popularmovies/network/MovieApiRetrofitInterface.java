@@ -1,6 +1,5 @@
-package com.example.malkoti.popularmovies.utils;
+package com.example.malkoti.popularmovies.network;
 
-import com.example.malkoti.popularmovies.model.Movie;
 import com.example.malkoti.popularmovies.model.MovieResult;
 import com.example.malkoti.popularmovies.model.ReviewResult;
 import com.example.malkoti.popularmovies.model.TrailerResult;
@@ -32,7 +31,7 @@ public interface MovieApiRetrofitInterface {
     Call<MovieResult> getMovieResults(@Query("api_key") String api_key, @Query("query") String keywords);
 
     @GET("movie/{movieId}")
-    Call<Movie> getMovieDetails(@Path("movieId") int movieId, @Query("api_key") String api_key);
+    Call<MovieResult.Movie> getMovieDetails(@Path("movieId") int movieId, @Query("api_key") String api_key);
 
     @GET("movie/{movieId}/videos")
     Call<TrailerResult> getMovieTrailers(@Path("movieId") int movieId, @Query("api_key") String api_key);
