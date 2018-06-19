@@ -23,6 +23,7 @@ public class MoviesRepository {
     private MutableLiveData<List<MovieResult.Movie>> topRatedMovies = new MutableLiveData<>();
     private MutableLiveData<List<MovieResult.Movie>> upcomingMovies = new MutableLiveData<>();
     private MutableLiveData<List<MovieResult.Movie>> nowPlayingMovies = new MutableLiveData<>();
+    private MutableLiveData<List<MovieResult.Movie>> searchResults = new MutableLiveData<>();
 
     MoviesRepository(Application application) {
         FavoritesDatabase favoritesDatabase = FavoritesDatabase.getFavoritesDatabase(application);
@@ -42,50 +43,56 @@ public class MoviesRepository {
 
     /**
      * Get list of popular movies
-     * @param apiKey
      * @return
      */
-    LiveData<List<MovieResult.Movie>> getPopularMovies(String apiKey) {
+    LiveData<List<MovieResult.Movie>> getPopularMovies() {
         if(popularMovies == null) {
-            popularMovies.setValue(NetworkUtils.getPopularMovies(apiKey));
+            popularMovies.setValue(NetworkUtils.getPopularMovies());
         }
         return popularMovies;
     }
 
     /**
      * Get list of top rated movies
-     * @param apiKey
      * @return
      */
-    LiveData<List<MovieResult.Movie>> getTopRatedMovies(String apiKey) {
+    LiveData<List<MovieResult.Movie>> getTopRatedMovies() {
         if(topRatedMovies == null) {
-            topRatedMovies.setValue(NetworkUtils.getPopularMovies(apiKey));
+            topRatedMovies.setValue(NetworkUtils.getPopularMovies());
         }
         return topRatedMovies;
     }
 
     /**
      * Get list of upcoming movies
-     * @param apiKey
      * @return
      */
-    LiveData<List<MovieResult.Movie>> getUpcomingMovies(String apiKey) {
+    LiveData<List<MovieResult.Movie>> getUpcomingMovies() {
         if(upcomingMovies == null) {
-            upcomingMovies.setValue(NetworkUtils.getPopularMovies(apiKey));
+            upcomingMovies.setValue(NetworkUtils.getPopularMovies());
         }
         return upcomingMovies;
     }
 
     /**
      * Get list of now playing movies
-     * @param apiKey
      * @return
      */
-    LiveData<List<MovieResult.Movie>> getNowPlayingMovies(String apiKey) {
+    LiveData<List<MovieResult.Movie>> getNowPlayingMovies() {
         if(nowPlayingMovies == null) {
-            nowPlayingMovies.setValue(NetworkUtils.getPopularMovies(apiKey));
+            nowPlayingMovies.setValue(NetworkUtils.getPopularMovies());
         }
         return nowPlayingMovies;
+    }
+
+    /**
+     * Get list of now playing movies
+     * @param keywords
+     * @return
+     */
+    LiveData<List<MovieResult.Movie>> getMoviesSearchResults(String keywords) {
+        searchResults.setValue(NetworkUtils.getSearchResults(keywords));
+        return searchResults;
     }
 
     /**

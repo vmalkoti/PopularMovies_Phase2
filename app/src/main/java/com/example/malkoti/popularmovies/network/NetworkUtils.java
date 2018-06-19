@@ -2,6 +2,7 @@ package com.example.malkoti.popularmovies.network;
 
 import android.util.Log;
 
+import com.example.malkoti.popularmovies.BuildConfig;
 import com.example.malkoti.popularmovies.model.MovieResult;
 
 import java.util.ArrayList;
@@ -13,51 +14,60 @@ import retrofit2.Response;
 
 public class NetworkUtils {
     private static final String LOG_TAG = NetworkUtils.class.getSimpleName();
+    private static final String API_KEY = BuildConfig.apiKey;
 
     /**
      *
-     * @param apiKey
      * @return
      */
-    public static List<MovieResult.Movie> getPopularMovies(String apiKey) {
+    public static List<MovieResult.Movie> getPopularMovies() {
         List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getPopularMovies(apiKey);
+        Call<MovieResult> call = ApiClient.getApiInterface().getPopularMovies(API_KEY);
         loadMoviesIntoList(call, movies);
         return movies;
     }
 
     /**
      *
-     * @param apiKey
      * @return
      */
-    public static List<MovieResult.Movie> getTopRatedMovies(String apiKey) {
+    public static List<MovieResult.Movie> getTopRatedMovies() {
         List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getTopRatedMovies(apiKey);
+        Call<MovieResult> call = ApiClient.getApiInterface().getTopRatedMovies(API_KEY);
         loadMoviesIntoList(call, movies);
         return movies;
     }
 
     /**
      *
-     * @param apiKey
      * @return
      */
-    public static List<MovieResult.Movie> getUpcomingMovies(String apiKey) {
+    public static List<MovieResult.Movie> getUpcomingMovies() {
         List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getUpcomingMovies(apiKey);
+        Call<MovieResult> call = ApiClient.getApiInterface().getUpcomingMovies(API_KEY);
         loadMoviesIntoList(call, movies);
         return movies;
     }
 
     /**
      *
-     * @param apiKey
      * @return
      */
-    public static List<MovieResult.Movie> getNowPlayingMovies(String apiKey) {
+    public static List<MovieResult.Movie> getNowPlayingMovies() {
         List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getNowPlayingMovies(apiKey);
+        Call<MovieResult> call = ApiClient.getApiInterface().getNowPlayingMovies(API_KEY);
+        loadMoviesIntoList(call, movies);
+        return movies;
+    }
+
+    /**
+     *
+     * @param keywords
+     * @return
+     */
+    public static List<MovieResult.Movie> getSearchResults(String keywords) {
+        List<MovieResult.Movie> movies = new ArrayList<>();
+        Call<MovieResult> call = ApiClient.getApiInterface().getMovieSearchResults(API_KEY, keywords);
         loadMoviesIntoList(call, movies);
         return movies;
     }

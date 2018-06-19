@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--
+    Free icons downloaded from https://material.io/tools/icons/
+    -->
+
+
+    <item android:id="@+id/view_movies_action"
+        android:title="@string/movies_menu"
+        android:icon="@drawable/ic_baseline_movie"
+        android:enabled="true"
+        app:showAsAction="always" />
+
+
+    <item android:id="@+id/search_movie_action"
+        android:title="@string/search_menu"
+        android:icon="@drawable/ic_baseline_search_24px"
+        android:enabled="true"
+        app:showAsAction="always" />
+
+
+    <item android:id="@+id/view_favorites_action"
+        android:title="@string/favorites_menu_item"
+        android:icon="@drawable/ic_baseline_favorite_filled"
+        android:enabled="true"
+        app:showAsAction="always" />
+
+</menu>

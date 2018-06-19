@@ -28,7 +28,7 @@ public interface MovieApiRetrofitInterface {
     Call<MovieResult> getNowPlayingMovies(@Query("api_key") String api_key);
 
     @GET("search/movie")
-    Call<MovieResult> getMovieResults(@Query("api_key") String api_key, @Query("query") String keywords);
+    Call<MovieResult> getMovieSearchResults(@Query("api_key") String api_key, @Query("query") String keywords);
 
     @GET("movie/{movieId}")
     Call<MovieResult.Movie> getMovieDetails(@Path("movieId") int movieId, @Query("api_key") String api_key);

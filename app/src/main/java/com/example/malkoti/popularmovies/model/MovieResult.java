@@ -4,6 +4,8 @@ package com.example.malkoti.popularmovies.model;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
@@ -21,7 +23,7 @@ public class MovieResult {
 
 
     @Entity(tableName="favorites")
-    public static class Movie {
+    public static class Movie implements Parcelable {
 
         @PrimaryKey
         @ColumnInfo(name="movie_id")
@@ -58,12 +60,74 @@ public class MovieResult {
 
         @ColumnInfo(name="runtime")
         @SerializedName("runtime")
-        private String runTime;
+        private int runTime;
 
         @ColumnInfo(name="overview")
         @SerializedName("overview")
         private String overview;
 
+        /* Public constructor for Room */
+        public Movie(int movieId, String movieTitle, float movieRating,
+                     String posterPath, String backdropPath, String tagline,
+                     String releaseDate, String language, int runTime, String overview) {
+            this.movieId = movieId;
+            this.movieTitle = movieTitle;
+            this.movieRating = movieRating;
+            this.posterPath = posterPath;
+            this.backdropPath = backdropPath;
+            this.tagline = tagline;
+            this.releaseDate = releaseDate;
+            this.language = language;
+            this.runTime = runTime;
+            this.overview = overview;
+        }
+
+        /*
+         * Parcelable members
+         */
+        public static final Parcelable.Creator<Movie> CREATOR
+                = new Parcelable.Creator<Movie>() {
+
+            @Override
+            public Movie createFromParcel(Parcel source) {
+                return new Movie(source);
+            }
+
+            @Override
+            public Movie[] newArray(int size) {
+                return new Movie[size];
+            }
+        };
+
+        private Movie(Parcel in) {
+            movieId = in.readInt();
+            movieTitle = in.readString();
+            movieRating = in.readFloat();
+            posterPath = in.readString();
+            backdropPath = in.readString();
+            tagline = in.readString();
+            releaseDate = in.readString();
+            language = in.readString();
+            runTime = in.readInt();
+            overview = in.readString();
+        }
+
+        public int describeContents() {
+            return 0;
+        }
+
+        public void writeToParcel(Parcel out, int flags) {
+            out.writeInt(this.movieId);
+            out.writeString(this.movieTitle);
+            out.writeFloat(this.movieRating);
+            out.writeString(this.posterPath);
+            out.writeString(this.backdropPath);
+            out.writeString(this.tagline);
+            out.writeString(this.releaseDate);
+            out.writeString(this.language);
+            out.writeInt(this.runTime);
+            out.writeString(this.overview);
+        }
 
         /* Getters */
         public String getMovieTitle() {
@@ -108,7 +172,7 @@ public class MovieResult {
             return language;
         }
 
-        public String getRunTime() {
+        public int getRunTime() {
             return runTime;
         }
 
@@ -147,7 +211,7 @@ public class MovieResult {
             this.language = language;
         }
 
-        public void setRunTime(String runTime) {
+        public void setRunTime(int runTime) {
             this.runTime = runTime;
         }
 

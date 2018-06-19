@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="padding_default">8dp</dimen>
     <dimen name="padding_radio_btn">4dp</dimen>
     <dimen name="leftgap_radio_btn">1dp</dimen>
@@ -9,4 +9,10 @@
     <dimen name="margin_wide">16dp</dimen>
     <dimen name="dtl_title_textsize">24sp</dimen>
     <dimen name="backdrop_height">200dp</dimen>
+    <!--
+    To fix width of bottom navigation in landscape layout
+    https://stackoverflow.com/questions/43823214/how-to-increase-width-of-bottomnavigationview-to-fill-the-screen
+    -->
+    <dimen name="design_bottom_navigation_item_max_width" tools:override="true">600dp</dimen>
+    <dimen name="design_bottom_navigation_active_item_max_width" tools:override="true">600dp</dimen>
 </resources>

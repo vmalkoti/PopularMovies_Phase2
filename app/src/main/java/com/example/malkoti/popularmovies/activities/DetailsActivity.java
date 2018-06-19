@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -28,13 +27,17 @@ import com.example.malkoti.popularmovies.network.ApiClient;
 import com.example.malkoti.popularmovies.network.MovieApiRetrofitInterface;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class DetailsActivity extends AppCompatActivity {
-    public static final String MOVIE_INTENT_KEY = "MOVIE_ID";
+    public static final String MOVIE_ID_KEY = "MOVIE_ID";
     public static final String MOVIE_FAVORITE_KEY = "MOVIE_FAVORITE";
+    public static final String MOVIE_KEY = "MOVIE";
+
     private final String LOG_TAG = DetailsActivity.class.getSimpleName();
     private final String API_KEY = BuildConfig.apiKey;
 
@@ -57,14 +60,21 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_details);
 
-        int selectedMovieId = getIntent().getIntExtra(MOVIE_INTENT_KEY, 0);
+        int selectedMovieId = getIntent().getIntExtra(MOVIE_ID_KEY, 0);
         isFavorite = getIntent().getBooleanExtra(MOVIE_FAVORITE_KEY, false);
 
-        getMovieDetails(selectedMovieId);
-        loadTrailers(selectedMovieId);
-        loadReviews(selectedMovieId);
+        movie = getIntent().getParcelableExtra(MOVIE_KEY);
+        Log.d(LOG_TAG, "Parcelable movie " + movie.getMovieId() + " " + movie.getMovieTitle());
+
+        //getMovieDetails(selectedMovieId);
+        loadMovieDetailsIntoViews(movie);
 
         viewModel = ViewModelProviders.of(DetailsActivity.this).get(FavoritesViewModel.class);
+        viewModel.isFavorite(movie).observe(DetailsActivity.this, observer);
+
+        loadTrailers(movie.getMovieId());
+        loadReviews(movie.getMovieId());
+
 
 
         binding.favoriteIconImg.setOnClickListener(new View.OnClickListener() {
@@ -126,7 +136,7 @@ public class DetailsActivity extends AppCompatActivity {
         binding.ratingBar.setVisibility(View.VISIBLE);
         binding.ratingBar.setRating(ratingVal);
         binding.taglineTv.setText(movie.getTagline());
-        binding.languageTv.setText(movie.getLanguage());
+        binding.languageTv.setText(movie.getLanguage().toUpperCase());
         binding.releaseDateTv.setText(movie.getReleaseDate());
         binding.summaryTv.setText(movie.getOverview());
 
@@ -178,8 +188,11 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<TrailerResult> call, Response<TrailerResult> response) {
                 TrailerResult result = response.body();
-                adapter.setData(result.getTrailersList());
-                //Log.d(LOG_TAG, "Items = " + result.getTrailersList().size());
+                List<TrailerResult.Trailer> trailers = result.getTrailersList();
+                adapter.setData(trailers);
+                if(trailers.size() > 0) {
+                    binding.trailersTv.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -202,7 +215,11 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ReviewResult> call, Response<ReviewResult> response) {
                 ReviewResult result = response.body();
-                adapter.setData(result.getReviews());
+                List<ReviewResult.Review> reviews = result.getReviews();
+                adapter.setData(reviews);
+                if(reviews.size() > 0) {
+                    binding.reviewsTv.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
