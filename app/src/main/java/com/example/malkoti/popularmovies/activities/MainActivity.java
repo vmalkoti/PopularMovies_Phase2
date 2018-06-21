@@ -67,6 +67,7 @@ public class MainActivity
             mAdapter.changeData(movies);
         }
     };
+
     LiveData<List<MovieResult.Movie>> favoritesLiveData;
     LiveData<List<MovieResult.Movie>> moviesLiveData;
 
@@ -81,7 +82,7 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Stetho to view database
+        // Stetho to view database for debugging
         //Stetho.initializeWithDefaults(MainActivity.this);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
@@ -104,7 +105,6 @@ public class MainActivity
                 if(findViewById(group.getCheckedRadioButtonId()).isPressed()) {
                     // fire only if the radio button was selected manually by user
                     // and not from code selection
-                    Log.d(LOG_TAG, "Checked change listener");
                     loadMovieList(checkedId);
                 }
             }
@@ -113,19 +113,11 @@ public class MainActivity
         binding.bottomNavBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Log.d(LOG_TAG, "Triggered nav option " + item.getItemId());
                 loadAppScreen(item.getItemId());
                 return true;
             }
         });
 
-        /*
-        Display display = getWindowManager().getDefaultDisplay();
-        Point point =  new Point();
-        display.getSize(point);
-        int widthPx = point.x;
-        binding.bottomNavBar.setMinimumWidth(widthPx);
-        */
 
         binding.searchMovieBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,26 +133,36 @@ public class MainActivity
             @Override
             public void performAction(boolean isConnected) {
                 networkOnline = isConnected;
-                Toast.makeText(MainActivity.this, "Network connected " + isConnected, Toast.LENGTH_SHORT).show();
+                String message = "Disconnected from the internet";
+
+                if(isConnected) {
+                    binding.networkStatus.setVisibility(View.GONE);
+                    if(binding.bottomNavBar.getSelectedItemId() == R.id.view_movies_action) {
+                        int selected = binding.tabButtons.getCheckedRadioButtonId();
+                        loadMovieList(selected);
+                    }
+                } else {
+                    binding.networkStatus.setText(message);
+                    binding.networkStatus.setVisibility(View.VISIBLE);
+                }
+
             }
         };
         networkReceiver = new NetworkStateChangeReceiver(connectionChangeHandler);
-        /*
-        if(savedInstanceState != null) {
-            Parcelable parcel = savedInstanceState.getParcelable("ListState");
-            binding.recyclerView.getLayoutManager().onRestoreInstanceState(parcel);
-        }
-        */
-
+        networkOnline = networkReceiver.isOnline(MainActivity.this);
 
         viewModel = ViewModelProviders.of(MainActivity.this).get(FavoritesViewModel.class);
         favoritesLiveData = viewModel.getFavoriteMovies();
+
+        /* To test a single ViewModel with Transformation -- START */
         moviesLiveData = viewModel.getMovies();
-        /*
-        moviesLiveData.observe(MainActivity.this, liveDataObserver);
-        */
-        Log.d(LOG_TAG, "Default radio button option " + binding.tabButtons.getCheckedRadioButtonId());
-        //binding.tabButtons.check(R.id.most_popular_btn);
+        moviesLiveData.observe(MainActivity.this, new Observer<List<MovieResult.Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<MovieResult.Movie> movies) {
+                Log.d(LOG_TAG, "Data changed");
+            }
+        });
+        /* To test a single ViewModel with Transformation -- END */
 
         if(savedInstanceState == null) {
             binding.tabButtons.check(R.id.most_popular_btn);
@@ -190,42 +192,18 @@ public class MainActivity
         outState.putParcelable(RECYCLER_INSTANCE_STATE, binding.recyclerView.getLayoutManager().onSaveInstanceState());
         outState.putInt(BOTTOM_NAV_OPTION, binding.bottomNavBar.getSelectedItemId());
         recyclerPosition = recyclerLayoutManager.findFirstVisibleItemPosition();
-        Log.d(LOG_TAG, "Saved position " + recyclerPosition);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Log.d(LOG_TAG, "In onRestoreInstanceState ");
 
         if(savedInstanceState != null) {
             int navId = savedInstanceState.getInt("BottomNavOption");
-
             binding.bottomNavBar.setSelectedItemId(navId);
-            /*
-            // Unnecessary - nav bar listener does same thing anyway
-            if(navId == R.id.view_movies_action) {
-                Log.d(LOG_TAG, "Selected Movie tab");
-                // load movie of selected radio button
-                loadMovieList(tabId);
-            } else if(navId == R.id.search_movie_action) {
-                Log.d(LOG_TAG, "Loading search screen");
-                mAdapter.changeData(null);
-            } else if(navId == R.id.view_favorites_action) {
-                Log.d(LOG_TAG, "Selected Favorites tab");
-                // start observing database data
-                favoritesLiveData.observe(MainActivity.this, liveDataObserver);
-            }
-            */
-
             recyclerParcelable = savedInstanceState.getParcelable(RECYCLER_INSTANCE_STATE);
-            //if(recyclerParcelable != null) {
-            //    binding.recyclerView.getLayoutManager().onRestoreInstanceState(recyclerParcelable);
-            //}
-
         } else {
-            Log.d(LOG_TAG, "No Saved IDs");
-            // Default selection is Most Popular
+            // Default selection is Most Popular Movies
             binding.tabButtons.check(R.id.most_popular_btn);
         }
 
@@ -237,7 +215,6 @@ public class MainActivity
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         if(recyclerParcelable != null) {
-            Log.d(LOG_TAG, "Setting recyclerview parcelable");
             binding.recyclerView.getLayoutManager().onRestoreInstanceState(recyclerParcelable);
         }
         recyclerLayoutManager.scrollToPosition(recyclerPosition);
@@ -276,32 +253,51 @@ public class MainActivity
 
         Log.d(LOG_TAG, "Loading movie list from top radio buttons");
 
+        if(!networkOnline) {
+            mAdapter.changeData(null);
+            viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
+            return;
+        }
+
+        /* To test a single ViewModel with Transformation -- START */
         switch (optionSelected) {
             case R.id.most_popular_btn:
-                call = ApiClient.getApiInterface().getPopularMovies(apiKey);
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.POPULAR);
                 break;
             case R.id.top_rated_btn:
-                call = ApiClient.getApiInterface().getTopRatedMovies(apiKey);
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.TOP_RATED);
                 break;
             case R.id.upcoming_btn:
-                call = ApiClient.getApiInterface().getUpcomingMovies(apiKey);
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.UPCOMING);
                 break;
             case R.id.now_playing_btn:
-                call = ApiClient.getApiInterface().getNowPlayingMovies(apiKey);
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.NOW_PLAYING);
+                break;
+            default:
+                viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
+                break;
+        }
+        /* To test a single ViewModel with Transformation -- END */
+
+        /* If single viewModel works
+         * following code in the method is not needed */
+        switch (optionSelected) {
+            case R.id.most_popular_btn:
+                call = ApiClient.getApiInterface().getPopularMovies(apiKey);
+                break;
+            case R.id.top_rated_btn:
+                call = ApiClient.getApiInterface().getTopRatedMovies(apiKey);
+                break;
+            case R.id.upcoming_btn:
+                call = ApiClient.getApiInterface().getUpcomingMovies(apiKey);
+                break;
+            case R.id.now_playing_btn:
+                call = ApiClient.getApiInterface().getNowPlayingMovies(apiKey);
                 break;
             default:
                 mAdapter.changeData(null);
                 return;
-                //call = ApiClient.getApiInterface().getPopularMovies(apiKey);
-                //viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
-                //break;
         }
-
-        Log.d(LOG_TAG, "Loading online movie list");
 
         call.enqueue(new Callback<MovieResult>() {
             @Override
@@ -331,38 +327,30 @@ public class MainActivity
 
         switch (menuOptionSelected) {
             case R.id.view_movies_action:
-                Log.d(LOG_TAG, "Bottom nav bar Movies selected");
                 showSearchFields(false);
                 favoritesLiveData.removeObserver(liveDataObserver);
-                //binding.recyclerView.setVisibility(View.VISIBLE);
                 binding.tabButtons.setVisibility(View.VISIBLE);
                 loadMovieList(binding.tabButtons.getCheckedRadioButtonId());
                 Log.d(LOG_TAG, "Checked item is " + binding.tabButtons.getCheckedRadioButtonId());
                 setTitle(getString(R.string.movies_menu));
                 break;
             case R.id.search_movie_action:
-                Log.d(LOG_TAG, "Bottom nav bar Search selected");
                 showSearchFields(true);
                 favoritesLiveData.removeObserver(liveDataObserver);
-                /*
-                viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
-                 */
-                //binding.recyclerView.setVisibility(View.INVISIBLE);
                 mAdapter.changeData(null);
+                /* To test a single ViewModel with Transformation -- START */
+                viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
+                /* To test a single ViewModel with Transformation -- END */
                 binding.tabButtons.setVisibility(View.GONE);
                 setTitle(getString(R.string.search_menu));
                 break;
             case R.id.view_favorites_action:
-                Log.d(LOG_TAG, "Bottom nav bar Favorites selected");
-                // code to add observer and show favorites
                 showSearchFields(false);
-                //binding.recyclerView.setVisibility(View.VISIBLE);
                 binding.tabButtons.setVisibility(View.GONE);
-                mAdapter.changeData(null);
                 favoritesLiveData.observe(MainActivity.this, liveDataObserver);
-                /*
+                /* To test a single ViewModel with Transformation -- START */
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.FAVORITES);
-                 */
+                /* To test a single ViewModel with Transformation -- END */
                 setTitle(getString(R.string.favorites_menu_item));
                 break;
         }
@@ -374,13 +362,15 @@ public class MainActivity
      */
     private void searchMovies(String keywords) {
         if(keywords != null && !keywords.trim().equals("")) {
-            String encodedSearchText = Uri.encode(keywords);
-            Log.d(LOG_TAG, "Searching for encoded " + encodedSearchText);
 
+            /* To test a single ViewModel with Transformation -- START */
             viewModel.setSearchKeywords(keywords);
             viewModel.setMovieType(FavoritesViewModel.MovieListTypes.SEARCH);
+            /* To test a single ViewModel with Transformation -- END */
 
-            /* Won't need anything below this */
+            /* If single viewmodel works,
+             * rest of the if block is not needed
+             */
             Call<MovieResult> call = ApiClient.getApiInterface().getMovieSearchResults(apiKey, keywords);
             Log.d(LOG_TAG, "URL formed " + call.request().url().toString());
 
@@ -405,6 +395,8 @@ public class MainActivity
                             + ". \nERROR : " + t.getMessage());
                 }
             });
+        } else {
+            Toast.makeText(MainActivity.this, "Need some keywords to perform search", Toast.LENGTH_SHORT).show();
         }
     }
 

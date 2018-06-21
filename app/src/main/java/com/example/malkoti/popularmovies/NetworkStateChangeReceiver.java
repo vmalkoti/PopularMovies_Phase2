@@ -19,10 +19,10 @@ public class NetworkStateChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        isOnline(context);
+        this.connectionChangeHandler.performAction(isOnline(context));
     }
 
-    private boolean isOnline(Context context) {
+    public boolean isOnline(Context context) {
         ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
         boolean isConnected = (networkInfo != null) && networkInfo.isConnectedOrConnecting();

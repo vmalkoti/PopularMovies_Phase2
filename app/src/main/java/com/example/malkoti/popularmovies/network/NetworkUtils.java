@@ -1,5 +1,6 @@
 package com.example.malkoti.popularmovies.network;
 
+import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
 import com.example.malkoti.popularmovies.BuildConfig;
@@ -78,12 +79,15 @@ public class NetworkUtils {
      * @param movies
      */
     private static void loadMoviesIntoList(Call<MovieResult> call, final List<MovieResult.Movie> movies) {
+        Log.d(LOG_TAG, "Performing network call");
+
         call.enqueue(new Callback<MovieResult>() {
             @Override
             public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
                 MovieResult MovieResult = response.body();
-                movies.clear();
+                //movies.clear();
                 movies.addAll(MovieResult.moviesList);
+                Log.d(LOG_TAG, "Added list to movies");
             }
 
             @Override

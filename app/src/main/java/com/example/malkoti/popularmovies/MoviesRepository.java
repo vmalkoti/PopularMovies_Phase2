@@ -47,6 +47,7 @@ public class MoviesRepository {
      */
     LiveData<List<MovieResult.Movie>> getPopularMovies() {
         if(popularMovies == null) {
+            Log.d(LOG_TAG, "Getting popular movies from NetworkUtils");
             popularMovies.setValue(NetworkUtils.getPopularMovies());
         }
         return popularMovies;
@@ -58,7 +59,7 @@ public class MoviesRepository {
      */
     LiveData<List<MovieResult.Movie>> getTopRatedMovies() {
         if(topRatedMovies == null) {
-            topRatedMovies.setValue(NetworkUtils.getPopularMovies());
+            topRatedMovies.setValue(NetworkUtils.getTopRatedMovies());
         }
         return topRatedMovies;
     }
@@ -69,7 +70,7 @@ public class MoviesRepository {
      */
     LiveData<List<MovieResult.Movie>> getUpcomingMovies() {
         if(upcomingMovies == null) {
-            upcomingMovies.setValue(NetworkUtils.getPopularMovies());
+            upcomingMovies.setValue(NetworkUtils.getUpcomingMovies());
         }
         return upcomingMovies;
     }
@@ -80,7 +81,7 @@ public class MoviesRepository {
      */
     LiveData<List<MovieResult.Movie>> getNowPlayingMovies() {
         if(nowPlayingMovies == null) {
-            nowPlayingMovies.setValue(NetworkUtils.getPopularMovies());
+            nowPlayingMovies.setValue(NetworkUtils.getNowPlayingMovies());
         }
         return nowPlayingMovies;
     }
