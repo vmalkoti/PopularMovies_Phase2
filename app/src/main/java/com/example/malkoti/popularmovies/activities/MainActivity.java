@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -50,6 +51,13 @@ public class MainActivity
         extends AppCompatActivity
         implements MoviesAdapter.MovieAdapterOnClickHandler {
 
+    private static final String RECYCLER_INSTANCE_STATE = "RecyclerInstanceState";
+    private static final String BOTTOM_NAV_OPTION = "BottomNavOption";
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String apiKey = BuildConfig.apiKey;
+
+    private ActivityMainBinding binding;
+    private GridLayoutManager recyclerLayoutManager;
     private MoviesAdapter mAdapter;
 
     private FavoritesViewModel viewModel;
@@ -62,15 +70,10 @@ public class MainActivity
     LiveData<List<MovieResult.Movie>> favoritesLiveData;
     LiveData<List<MovieResult.Movie>> moviesLiveData;
 
+    private Parcelable recyclerParcelable = null;
     private int recyclerPosition = 0;
-    private int selectedVisibleTab = -1;
-    private boolean forceLoad = false;
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
-    private final String apiKey = BuildConfig.apiKey;
 
-    private ActivityMainBinding binding;
-
-    private NetworkStateChangeReceiver networkReciever;
+    private NetworkStateChangeReceiver networkReceiver;
     private NetworkStateChangeReceiver.ConnectionChangeHandler connectionChangeHandler;
     private boolean networkOnline;
 
@@ -88,12 +91,12 @@ public class MainActivity
 
         showSearchFields(false);
 
+        recyclerLayoutManager = new GridLayoutManager(MainActivity.this, gridColumns);
         binding.recyclerView.setHasFixedSize(true);
-        binding.recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, gridColumns));
+        binding.recyclerView.setLayoutManager(recyclerLayoutManager);
         mAdapter = new MoviesAdapter(this);
         binding.recyclerView.setAdapter(mAdapter);
         binding.recyclerView.setHasFixedSize(true);
-
 
         binding.tabButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -106,8 +109,6 @@ public class MainActivity
                 }
             }
         });
-
-
 
         binding.bottomNavBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -143,7 +144,7 @@ public class MainActivity
                 Toast.makeText(MainActivity.this, "Network connected " + isConnected, Toast.LENGTH_SHORT).show();
             }
         };
-        networkReciever = new NetworkStateChangeReceiver(connectionChangeHandler);
+        networkReceiver = new NetworkStateChangeReceiver(connectionChangeHandler);
         /*
         if(savedInstanceState != null) {
             Parcelable parcel = savedInstanceState.getParcelable("ListState");
@@ -160,6 +161,11 @@ public class MainActivity
         */
         Log.d(LOG_TAG, "Default radio button option " + binding.tabButtons.getCheckedRadioButtonId());
         //binding.tabButtons.check(R.id.most_popular_btn);
+
+        if(savedInstanceState == null) {
+            binding.tabButtons.check(R.id.most_popular_btn);
+            loadMovieList(R.id.most_popular_btn);
+        }
     }
 
     @Override
@@ -181,9 +187,10 @@ public class MainActivity
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("ListState", binding.recyclerView.getLayoutManager().onSaveInstanceState());
-        outState.putInt("BottomNavOption", binding.bottomNavBar.getSelectedItemId());
-        outState.putInt("TabOption", binding.tabButtons.getCheckedRadioButtonId());
+        outState.putParcelable(RECYCLER_INSTANCE_STATE, binding.recyclerView.getLayoutManager().onSaveInstanceState());
+        outState.putInt(BOTTOM_NAV_OPTION, binding.bottomNavBar.getSelectedItemId());
+        recyclerPosition = recyclerLayoutManager.findFirstVisibleItemPosition();
+        Log.d(LOG_TAG, "Saved position " + recyclerPosition);
     }
 
     @Override
@@ -193,17 +200,29 @@ public class MainActivity
 
         if(savedInstanceState != null) {
             int navId = savedInstanceState.getInt("BottomNavOption");
-            int tabId = savedInstanceState.getInt("TabOption");
-            Log.d(LOG_TAG, "Saved IDs " + navId + ", " + tabId);
 
             binding.bottomNavBar.setSelectedItemId(navId);
-            if(navId == R.id.search_movie_action) {
+            /*
+            // Unnecessary - nav bar listener does same thing anyway
+            if(navId == R.id.view_movies_action) {
                 Log.d(LOG_TAG, "Selected Movie tab");
+                // load movie of selected radio button
                 loadMovieList(tabId);
+            } else if(navId == R.id.search_movie_action) {
+                Log.d(LOG_TAG, "Loading search screen");
+                mAdapter.changeData(null);
             } else if(navId == R.id.view_favorites_action) {
                 Log.d(LOG_TAG, "Selected Favorites tab");
+                // start observing database data
                 favoritesLiveData.observe(MainActivity.this, liveDataObserver);
             }
+            */
+
+            recyclerParcelable = savedInstanceState.getParcelable(RECYCLER_INSTANCE_STATE);
+            //if(recyclerParcelable != null) {
+            //    binding.recyclerView.getLayoutManager().onRestoreInstanceState(recyclerParcelable);
+            //}
+
         } else {
             Log.d(LOG_TAG, "No Saved IDs");
             // Default selection is Most Popular
@@ -215,13 +234,19 @@ public class MainActivity
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(networkReciever, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        if(recyclerParcelable != null) {
+            Log.d(LOG_TAG, "Setting recyclerview parcelable");
+            binding.recyclerView.getLayoutManager().onRestoreInstanceState(recyclerParcelable);
+        }
+        recyclerLayoutManager.scrollToPosition(recyclerPosition);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(networkReciever);
+        unregisterReceiver(networkReceiver);
     }
 
     /**
@@ -253,27 +278,22 @@ public class MainActivity
 
         switch (optionSelected) {
             case R.id.most_popular_btn:
-                selectedVisibleTab = binding.tabButtons.getCheckedRadioButtonId();
                 call = ApiClient.getApiInterface().getPopularMovies(apiKey);
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.POPULAR);
                 break;
             case R.id.top_rated_btn:
-                selectedVisibleTab = binding.tabButtons.getCheckedRadioButtonId();
                 call = ApiClient.getApiInterface().getTopRatedMovies(apiKey);
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.TOP_RATED);
                 break;
             case R.id.upcoming_btn:
-                selectedVisibleTab = binding.tabButtons.getCheckedRadioButtonId();
                 call = ApiClient.getApiInterface().getUpcomingMovies(apiKey);
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.UPCOMING);
                 break;
             case R.id.now_playing_btn:
-                selectedVisibleTab = binding.tabButtons.getCheckedRadioButtonId();
                 call = ApiClient.getApiInterface().getNowPlayingMovies(apiKey);
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.NOW_PLAYING);
                 break;
             default:
-                selectedVisibleTab = binding.tabButtons.getCheckedRadioButtonId();
                 mAdapter.changeData(null);
                 return;
                 //call = ApiClient.getApiInterface().getPopularMovies(apiKey);
@@ -311,6 +331,7 @@ public class MainActivity
 
         switch (menuOptionSelected) {
             case R.id.view_movies_action:
+                Log.d(LOG_TAG, "Bottom nav bar Movies selected");
                 showSearchFields(false);
                 favoritesLiveData.removeObserver(liveDataObserver);
                 //binding.recyclerView.setVisibility(View.VISIBLE);
@@ -320,6 +341,7 @@ public class MainActivity
                 setTitle(getString(R.string.movies_menu));
                 break;
             case R.id.search_movie_action:
+                Log.d(LOG_TAG, "Bottom nav bar Search selected");
                 showSearchFields(true);
                 favoritesLiveData.removeObserver(liveDataObserver);
                 /*
@@ -331,6 +353,7 @@ public class MainActivity
                 setTitle(getString(R.string.search_menu));
                 break;
             case R.id.view_favorites_action:
+                Log.d(LOG_TAG, "Bottom nav bar Favorites selected");
                 // code to add observer and show favorites
                 showSearchFields(false);
                 //binding.recyclerView.setVisibility(View.VISIBLE);

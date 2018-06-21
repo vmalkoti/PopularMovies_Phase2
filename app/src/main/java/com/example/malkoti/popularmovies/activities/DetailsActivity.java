@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,6 +43,9 @@ public class DetailsActivity extends AppCompatActivity {
     private final String API_KEY = BuildConfig.apiKey;
 
     ActivityDetailsBinding binding;
+
+    private String TRAILERS_STATE = "TrailerSavedState";
+    private String REVIEWS_STATE = "ReviewSavedState";
 
     private FavoritesViewModel viewModel;
     private Observer<Integer> observer = new Observer<Integer>() {
@@ -90,6 +94,27 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(TRAILERS_STATE, binding.trailers.getLayoutManager().onSaveInstanceState());
+        outState.putParcelable(REVIEWS_STATE, binding.reviews.getLayoutManager().onSaveInstanceState());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d(LOG_TAG, "In onRestoreInstanceState ");
+
+        if(savedInstanceState != null) {
+            Parcelable trailersParcelable = savedInstanceState.getParcelable(TRAILERS_STATE);
+            binding.trailers.getLayoutManager().onRestoreInstanceState(trailersParcelable);
+            Parcelable reviewsParcelable = savedInstanceState.getParcelable(REVIEWS_STATE);
+            binding.reviews.getLayoutManager().onRestoreInstanceState(reviewsParcelable);
+        }
+
     }
 
     /**
