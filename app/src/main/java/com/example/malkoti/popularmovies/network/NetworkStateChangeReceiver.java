@@ -1,4 +1,4 @@
-package com.example.malkoti.popularmovies;
+package com.example.malkoti.popularmovies.network;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

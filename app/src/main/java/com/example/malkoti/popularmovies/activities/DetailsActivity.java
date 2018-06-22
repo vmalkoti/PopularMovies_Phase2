@@ -9,14 +9,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.malkoti.popularmovies.BuildConfig;
-import com.example.malkoti.popularmovies.FavoritesViewModel;
+import com.example.malkoti.popularmovies.data.FavoritesViewModel;
 import com.example.malkoti.popularmovies.R;
 import com.example.malkoti.popularmovies.adapters.ReviewAdapter;
 import com.example.malkoti.popularmovies.adapters.TrailerAdapter;
@@ -59,6 +63,8 @@ public class DetailsActivity extends AppCompatActivity {
     private MovieResult.Movie movie;
     private boolean isFavorite;
 
+    private ShareActionProvider mShareActionProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +74,6 @@ public class DetailsActivity extends AppCompatActivity {
         isFavorite = getIntent().getBooleanExtra(MOVIE_FAVORITE_KEY, false);
 
         movie = getIntent().getParcelableExtra(MOVIE_KEY);
-        Log.d(LOG_TAG, "Parcelable movie " + movie.getMovieId() + " " + movie.getMovieTitle());
 
         //getMovieDetails(selectedMovieId);
         loadMovieDetailsIntoViews(movie);
@@ -97,6 +102,31 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.details_menu, menu);
+        MenuItem item = menu.findItem(R.id.share_movie_action);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        String shareSubject = "View on Movies App";
+        StringBuilder builder = new StringBuilder();
+        builder.append(movie.getMovieTitle());
+        builder.append("\n\n");
+        builder.append(movie.getOverview());
+        builder.append("\n\n");
+        builder.append("View more on Movies app. Download from Google Play Store today.");
+        builder.append("<Play Store URL here>");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareSubject);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, builder.toString());
+
+        mShareActionProvider.setShareIntent(sharingIntent);
+
+        return true;
+    }
+
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(TRAILERS_STATE, binding.trailers.getLayoutManager().onSaveInstanceState());
@@ -105,6 +135,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        // Doesn't seem to restore recyclerview scroll state
         super.onRestoreInstanceState(savedInstanceState);
         Log.d(LOG_TAG, "In onRestoreInstanceState ");
 
@@ -216,6 +247,7 @@ public class DetailsActivity extends AppCompatActivity {
                 List<TrailerResult.Trailer> trailers = result.getTrailersList();
                 adapter.setData(trailers);
                 if(trailers.size() > 0) {
+                    String firstTrailer = trailers.get(0).getKey();
                     binding.trailersTv.setVisibility(View.VISIBLE);
                 }
             }

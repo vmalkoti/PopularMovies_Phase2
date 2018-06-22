@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -28,19 +27,16 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.malkoti.popularmovies.BuildConfig;
-import com.example.malkoti.popularmovies.FavoritesViewModel;
-import com.example.malkoti.popularmovies.NetworkStateChangeReceiver;
+import com.example.malkoti.popularmovies.data.FavoritesViewModel;
+import com.example.malkoti.popularmovies.network.NetworkStateChangeReceiver;
 import com.example.malkoti.popularmovies.R;
 import com.example.malkoti.popularmovies.adapters.MoviesAdapter;
 import com.example.malkoti.popularmovies.databinding.ActivityMainBinding;
 import com.example.malkoti.popularmovies.model.MovieResult;
-import com.example.malkoti.popularmovies.network.ApiClient;
 
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Main or Home screen activity for the app.
@@ -152,7 +148,11 @@ public class MainActivity
         networkOnline = networkReceiver.isOnline(MainActivity.this);
 
         viewModel = ViewModelProviders.of(MainActivity.this).get(FavoritesViewModel.class);
+        /* Current non-single viewmodel approach -- START */
+        /*
         favoritesLiveData = viewModel.getFavoriteMovies();
+         */
+        /* Current non-single viewmodel approach -- START */
 
         /* To test a single ViewModel with Transformation -- START */
         moviesLiveData = viewModel.getMovies();
@@ -160,6 +160,7 @@ public class MainActivity
             @Override
             public void onChanged(@Nullable List<MovieResult.Movie> movies) {
                 Log.d(LOG_TAG, "Data changed");
+                mAdapter.changeData(movies);
             }
         });
         /* To test a single ViewModel with Transformation -- END */
@@ -211,6 +212,7 @@ public class MainActivity
 
     @Override
     protected void onResume() {
+        // Doesn't seem to restore recyclerview scroll state
         super.onResume();
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -251,11 +253,16 @@ public class MainActivity
     private void loadMovieList(final int optionSelected) {
         Call<MovieResult> call;
 
-        Log.d(LOG_TAG, "Loading movie list from top radio buttons");
-
         if(!networkOnline) {
+            /* Current non-single viewmodel approach -- START */
+            /*
             mAdapter.changeData(null);
+             */
+            /* Current non-single viewmodel approach -- END */
+
+            /* To test a single ViewModel with Transformation -- START */
             viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
+            /* To test a single ViewModel with Transformation -- END */
             return;
         }
 
@@ -281,6 +288,7 @@ public class MainActivity
 
         /* If single viewModel works
          * following code in the method is not needed */
+        /*
         switch (optionSelected) {
             case R.id.most_popular_btn:
                 call = ApiClient.getApiInterface().getPopularMovies(apiKey);
@@ -315,6 +323,7 @@ public class MainActivity
                         + ". \nERROR : " + t.getMessage());
             }
         });
+        */
     }
 
 
@@ -323,31 +332,41 @@ public class MainActivity
      * @param menuOptionSelected ID of item selected
      */
     private void loadAppScreen(int menuOptionSelected) {
-        Log.d(LOG_TAG, "in loadAppScreen with option " + menuOptionSelected);
-
         switch (menuOptionSelected) {
             case R.id.view_movies_action:
                 showSearchFields(false);
+                /* Current non-single viewmodel approach -- START */
+                /*
                 favoritesLiveData.removeObserver(liveDataObserver);
+                 */
+                /* Current non-single viewmodel approach -- END */
                 binding.tabButtons.setVisibility(View.VISIBLE);
                 loadMovieList(binding.tabButtons.getCheckedRadioButtonId());
-                Log.d(LOG_TAG, "Checked item is " + binding.tabButtons.getCheckedRadioButtonId());
                 setTitle(getString(R.string.movies_menu));
                 break;
             case R.id.search_movie_action:
                 showSearchFields(true);
+                binding.tabButtons.setVisibility(View.GONE);
+                /* Current non-single viewmodel approach -- START */
+                /*
                 favoritesLiveData.removeObserver(liveDataObserver);
                 mAdapter.changeData(null);
+                 */
+                /* Current non-single viewmodel approach -- END */
+
                 /* To test a single ViewModel with Transformation -- START */
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
                 /* To test a single ViewModel with Transformation -- END */
-                binding.tabButtons.setVisibility(View.GONE);
                 setTitle(getString(R.string.search_menu));
                 break;
             case R.id.view_favorites_action:
                 showSearchFields(false);
                 binding.tabButtons.setVisibility(View.GONE);
+                /* Current non-single viewmodel approach -- START */
+                /*
                 favoritesLiveData.observe(MainActivity.this, liveDataObserver);
+                 */
+                /* Current non-single viewmodel approach -- END */
                 /* To test a single ViewModel with Transformation -- START */
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.FAVORITES);
                 /* To test a single ViewModel with Transformation -- END */
@@ -371,6 +390,7 @@ public class MainActivity
             /* If single viewmodel works,
              * rest of the if block is not needed
              */
+            /*
             Call<MovieResult> call = ApiClient.getApiInterface().getMovieSearchResults(apiKey, keywords);
             Log.d(LOG_TAG, "URL formed " + call.request().url().toString());
 
@@ -395,6 +415,7 @@ public class MainActivity
                             + ". \nERROR : " + t.getMessage());
                 }
             });
+            */
         } else {
             Toast.makeText(MainActivity.this, "Need some keywords to perform search", Toast.LENGTH_SHORT).show();
         }

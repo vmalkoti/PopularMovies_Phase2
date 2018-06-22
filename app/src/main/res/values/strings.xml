@@ -22,4 +22,5 @@
     <string name="reviews_header_text">Reviews</string>
     <string name="trailers_header_text">Trailers</string>
     <string name="content_desc_favorite_ind">Favorite indicator</string>
+    <string name="share_item">Share</string>
 </resources>

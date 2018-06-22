@@ -7,6 +7,7 @@ Code for Udacity Android Developer Nanodegree Project 2 - Popular Movies, Phase 
 3. Implement *SQLiteDatabase* and *ContentProvider*, or *Architecture Components*
 4. Provide offline "Favorites" functionality
 5. Network state change listener
+6. Share movie information from Details activity
 
 
 This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get movie lists, images and information. Please get an API key to use this app and define it in your gradle build system.
@@ -16,15 +17,29 @@ This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get mov
 * Placeholder images from [freekpik](https://www.freepik.com)
 * Icons from [Material Design](https://material.io/)
 
-**Libraries used:**
+###Libraries used
 1. Retrofit
 2. Picasso
 3. Data Binding
 4. Room with LiveData
 
-Known issues:
+####Known issues
 1. RecyclerView and ScrollView do not preserve scroll state on rotation
-2. 
 
-Work in progress:
-1. A single ViewModel to get data from both network and database
+####Work In Progress
+1. Add favorite functionality in Main Activity's RecyclerView
+
+####Screenshots
+![Movies](images/Movies_tab.gif)
+
+![Details](images/View_Movie_Details.gif)
+
+![Share](images/Share_Movie_Details.gif)
+
+![Search](images/Search_Movies.gif)
+
+![Favorite](images/Favorite_Unfavorite.gif)
+
+![Favorites](images/View_Unmark_Favorite.gif)
+
+![Network](images/Online_Offline_mode.gif)

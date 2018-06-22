@@ -1,4 +1,4 @@
-package com.example.malkoti.popularmovies;
+package com.example.malkoti.popularmovies.data;
 
 import android.app.Application;
 import android.arch.core.util.Function;

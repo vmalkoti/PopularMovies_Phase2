@@ -1,4 +1,4 @@
-package com.example.malkoti.popularmovies;
+package com.example.malkoti.popularmovies.data;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
@@ -46,11 +46,14 @@ public class MoviesRepository {
      * @return
      */
     LiveData<List<MovieResult.Movie>> getPopularMovies() {
+        /*
         if(popularMovies == null) {
             Log.d(LOG_TAG, "Getting popular movies from NetworkUtils");
             popularMovies.setValue(NetworkUtils.getPopularMovies());
         }
         return popularMovies;
+        */
+        return NetworkUtils.getPopularMovies();
     }
 
     /**
@@ -58,10 +61,13 @@ public class MoviesRepository {
      * @return
      */
     LiveData<List<MovieResult.Movie>> getTopRatedMovies() {
+        /*
         if(topRatedMovies == null) {
             topRatedMovies.setValue(NetworkUtils.getTopRatedMovies());
         }
         return topRatedMovies;
+        */
+        return NetworkUtils.getTopRatedMovies();
     }
 
     /**
@@ -69,10 +75,13 @@ public class MoviesRepository {
      * @return
      */
     LiveData<List<MovieResult.Movie>> getUpcomingMovies() {
+        /*
         if(upcomingMovies == null) {
             upcomingMovies.setValue(NetworkUtils.getUpcomingMovies());
         }
         return upcomingMovies;
+        */
+        return NetworkUtils.getUpcomingMovies();
     }
 
     /**
@@ -80,10 +89,13 @@ public class MoviesRepository {
      * @return
      */
     LiveData<List<MovieResult.Movie>> getNowPlayingMovies() {
+        /*
         if(nowPlayingMovies == null) {
             nowPlayingMovies.setValue(NetworkUtils.getNowPlayingMovies());
         }
         return nowPlayingMovies;
+        */
+        return NetworkUtils.getNowPlayingMovies();
     }
 
     /**
@@ -92,12 +104,15 @@ public class MoviesRepository {
      * @return
      */
     LiveData<List<MovieResult.Movie>> getMoviesSearchResults(String keywords) {
+        /*
         searchResults.setValue(NetworkUtils.getSearchResults(keywords));
         return searchResults;
+        */
+        return NetworkUtils.getSearchResults(keywords);
     }
 
     /**
-     *
+     * Wrapper to query for a single movie
      * @param movie
      * @return
      */
@@ -107,7 +122,7 @@ public class MoviesRepository {
     }
 
     /**
-     * Wrapper for insert operation
+     * Wrapper for insert operation with AsyncTask
      * @param movie
      */
     void insert(MovieResult.Movie movie) {
@@ -115,12 +130,13 @@ public class MoviesRepository {
     }
 
     /**
-     *
+     * Wrapper for delete operation with AsyncTask
      * @param movie
      */
     void delete(MovieResult.Movie movie) {
         new DeleteTask(favoritesDao).execute(movie);
     }
+
 
     /**
      * AsyncTask class for db insert operation
