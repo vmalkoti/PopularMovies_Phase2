@@ -30,16 +30,31 @@ This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get mov
 1. Add favorite functionality in Main Activity's RecyclerView
 
 ####Screenshots
+
+View lists of movies
+
 ![Movies](images/Movies_tab.gif)
+
+View movie details
 
 ![Details](images/View_Movie_Details.gif)
 
+Share movie details
+
 ![Share](images/Share_Movie_Details.gif)
+
+Search for movies
 
 ![Search](images/Search_Movies.gif)
 
+Mark or unmark a movie as favorite 
+
 ![Favorite](images/Favorite_Unfavorite.gif)
 
+View Favorites list and unfavorite a movie
+
 ![Favorites](images/View_Unmark_Favorite.gif)
+
+Network connectivity
 
 ![Network](images/Online_Offline_mode.gif)
