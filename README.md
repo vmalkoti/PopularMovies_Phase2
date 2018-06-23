@@ -1,4 +1,4 @@
-# Popular Movies - Phase2
+## Popular Movies - Phase2
 Code for Udacity Android Developer Nanodegree Project 2 - Popular Movies, Phase 2
 
 **New in Phase 2**
@@ -18,22 +18,22 @@ This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get mov
 * Icons from [Material Design](https://material.io/)
 
 
-###Libraries used
+### Libraries used
 1. Retrofit
 2. Picasso
 3. Data Binding
 4. Room with LiveData
 
 
-####Known issues
+#### Known issues
 1. RecyclerView and ScrollView do not preserve scroll state on rotation
 
 
-####Work In Progress
+#### Work In Progress
 1. Add favorite functionality in Main Activity's RecyclerView
 
 
-####Screenshots
+#### Screenshots
 
 View lists of movies
 
