@@ -58,7 +58,7 @@ public class MainActivity
     private FavoritesViewModel viewModel;
     private LiveData<List<MovieResult.Movie>> moviesLiveData;
 
-    private Parcelable recyclerParcelable = null;
+    private Parcelable recyclerParcelable;
     private int recyclerPosition = 0;
 
     private NetworkStateChangeReceiver networkReceiver;
@@ -174,7 +174,9 @@ public class MainActivity
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(RECYCLER_INSTANCE_STATE, binding.recyclerView.getLayoutManager().onSaveInstanceState());
+
+        recyclerParcelable = binding.recyclerView.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(RECYCLER_INSTANCE_STATE, recyclerParcelable);
         outState.putInt(BOTTOM_NAV_OPTION, binding.bottomNavBar.getSelectedItemId());
         recyclerPosition = recyclerLayoutManager.findFirstVisibleItemPosition();
     }
@@ -184,7 +186,7 @@ public class MainActivity
         super.onRestoreInstanceState(savedInstanceState);
 
         if(savedInstanceState != null) {
-            int navId = savedInstanceState.getInt("BottomNavOption");
+            int navId = savedInstanceState.getInt(BOTTOM_NAV_OPTION);
             binding.bottomNavBar.setSelectedItemId(navId);
             recyclerParcelable = savedInstanceState.getParcelable(RECYCLER_INSTANCE_STATE);
         } else {
@@ -203,7 +205,7 @@ public class MainActivity
         if(recyclerParcelable != null) {
             binding.recyclerView.getLayoutManager().onRestoreInstanceState(recyclerParcelable);
         }
-        recyclerLayoutManager.scrollToPosition(recyclerPosition);
+        //recyclerLayoutManager.scrollToPosition(recyclerPosition);
     }
 
     @Override
