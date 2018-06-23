@@ -50,22 +50,13 @@ public class MainActivity
     private static final String RECYCLER_INSTANCE_STATE = "RecyclerInstanceState";
     private static final String BOTTOM_NAV_OPTION = "BottomNavOption";
     private final String LOG_TAG = MainActivity.class.getSimpleName();
-    private final String apiKey = BuildConfig.apiKey;
 
     private ActivityMainBinding binding;
     private GridLayoutManager recyclerLayoutManager;
     private MoviesAdapter mAdapter;
 
     private FavoritesViewModel viewModel;
-    Observer<List<MovieResult.Movie>> liveDataObserver = new Observer<List<MovieResult.Movie>>() {
-        @Override
-        public void onChanged(@Nullable List<MovieResult.Movie> movies) {
-            mAdapter.changeData(movies);
-        }
-    };
-
-    LiveData<List<MovieResult.Movie>> favoritesLiveData;
-    LiveData<List<MovieResult.Movie>> moviesLiveData;
+    private LiveData<List<MovieResult.Movie>> moviesLiveData;
 
     private Parcelable recyclerParcelable = null;
     private int recyclerPosition = 0;
@@ -148,13 +139,7 @@ public class MainActivity
         networkOnline = networkReceiver.isOnline(MainActivity.this);
 
         viewModel = ViewModelProviders.of(MainActivity.this).get(FavoritesViewModel.class);
-        /* Current non-single viewmodel approach -- START */
-        /*
-        favoritesLiveData = viewModel.getFavoriteMovies();
-         */
-        /* Current non-single viewmodel approach -- START */
 
-        /* To test a single ViewModel with Transformation -- START */
         moviesLiveData = viewModel.getMovies();
         moviesLiveData.observe(MainActivity.this, new Observer<List<MovieResult.Movie>>() {
             @Override
@@ -163,7 +148,6 @@ public class MainActivity
                 mAdapter.changeData(movies);
             }
         });
-        /* To test a single ViewModel with Transformation -- END */
 
         if(savedInstanceState == null) {
             binding.tabButtons.check(R.id.most_popular_btn);
@@ -254,19 +238,10 @@ public class MainActivity
         Call<MovieResult> call;
 
         if(!networkOnline) {
-            /* Current non-single viewmodel approach -- START */
-            /*
-            mAdapter.changeData(null);
-             */
-            /* Current non-single viewmodel approach -- END */
-
-            /* To test a single ViewModel with Transformation -- START */
             viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
-            /* To test a single ViewModel with Transformation -- END */
             return;
         }
 
-        /* To test a single ViewModel with Transformation -- START */
         switch (optionSelected) {
             case R.id.most_popular_btn:
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.POPULAR);
@@ -284,46 +259,6 @@ public class MainActivity
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
                 break;
         }
-        /* To test a single ViewModel with Transformation -- END */
-
-        /* If single viewModel works
-         * following code in the method is not needed */
-        /*
-        switch (optionSelected) {
-            case R.id.most_popular_btn:
-                call = ApiClient.getApiInterface().getPopularMovies(apiKey);
-                break;
-            case R.id.top_rated_btn:
-                call = ApiClient.getApiInterface().getTopRatedMovies(apiKey);
-                break;
-            case R.id.upcoming_btn:
-                call = ApiClient.getApiInterface().getUpcomingMovies(apiKey);
-                break;
-            case R.id.now_playing_btn:
-                call = ApiClient.getApiInterface().getNowPlayingMovies(apiKey);
-                break;
-            default:
-                mAdapter.changeData(null);
-                return;
-        }
-
-        call.enqueue(new Callback<MovieResult>() {
-            @Override
-            public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
-                MovieResult MovieResult = response.body();
-                List<MovieResult.Movie> movies = MovieResult.moviesList;
-                mAdapter.changeData(movies);
-                binding.recyclerView.smoothScrollToPosition(0);
-            }
-
-            @Override
-            public void onFailure(Call<MovieResult> call, Throwable t) {
-                Toast.makeText(MainActivity.this, R.string.error_message, Toast.LENGTH_LONG).show();
-                Log.e(LOG_TAG, "Error getting list of movies from internet " + optionSelected
-                        + ". \nERROR : " + t.getMessage());
-            }
-        });
-        */
     }
 
 
@@ -335,11 +270,6 @@ public class MainActivity
         switch (menuOptionSelected) {
             case R.id.view_movies_action:
                 showSearchFields(false);
-                /* Current non-single viewmodel approach -- START */
-                /*
-                favoritesLiveData.removeObserver(liveDataObserver);
-                 */
-                /* Current non-single viewmodel approach -- END */
                 binding.tabButtons.setVisibility(View.VISIBLE);
                 loadMovieList(binding.tabButtons.getCheckedRadioButtonId());
                 setTitle(getString(R.string.movies_menu));
@@ -347,29 +277,13 @@ public class MainActivity
             case R.id.search_movie_action:
                 showSearchFields(true);
                 binding.tabButtons.setVisibility(View.GONE);
-                /* Current non-single viewmodel approach -- START */
-                /*
-                favoritesLiveData.removeObserver(liveDataObserver);
-                mAdapter.changeData(null);
-                 */
-                /* Current non-single viewmodel approach -- END */
-
-                /* To test a single ViewModel with Transformation -- START */
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.EMPTY);
-                /* To test a single ViewModel with Transformation -- END */
                 setTitle(getString(R.string.search_menu));
                 break;
             case R.id.view_favorites_action:
                 showSearchFields(false);
                 binding.tabButtons.setVisibility(View.GONE);
-                /* Current non-single viewmodel approach -- START */
-                /*
-                favoritesLiveData.observe(MainActivity.this, liveDataObserver);
-                 */
-                /* Current non-single viewmodel approach -- END */
-                /* To test a single ViewModel with Transformation -- START */
                 viewModel.setMovieType(FavoritesViewModel.MovieListTypes.FAVORITES);
-                /* To test a single ViewModel with Transformation -- END */
                 setTitle(getString(R.string.favorites_menu_item));
                 break;
         }
@@ -381,41 +295,8 @@ public class MainActivity
      */
     private void searchMovies(String keywords) {
         if(keywords != null && !keywords.trim().equals("")) {
-
-            /* To test a single ViewModel with Transformation -- START */
             viewModel.setSearchKeywords(keywords);
             viewModel.setMovieType(FavoritesViewModel.MovieListTypes.SEARCH);
-            /* To test a single ViewModel with Transformation -- END */
-
-            /* If single viewmodel works,
-             * rest of the if block is not needed
-             */
-            /*
-            Call<MovieResult> call = ApiClient.getApiInterface().getMovieSearchResults(apiKey, keywords);
-            Log.d(LOG_TAG, "URL formed " + call.request().url().toString());
-
-            call.enqueue(new Callback<MovieResult>() {
-                @Override
-                public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
-                    MovieResult MovieResult = response.body();
-                    List<MovieResult.Movie> movies = MovieResult.moviesList;  // pass it to mAdapter
-                    mAdapter.changeData(movies);
-                    if(movies != null && movies.size()>0) {
-                        binding.recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        binding.recyclerView.setVisibility(View.INVISIBLE);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<MovieResult> call, Throwable t) {
-                    Toast.makeText(MainActivity.this, R.string.error_message,
-                            Toast.LENGTH_LONG).show();
-                    Log.e(LOG_TAG, R.string.error_message
-                            + ". \nERROR : " + t.getMessage());
-                }
-            });
-            */
         } else {
             Toast.makeText(MainActivity.this, "Need some keywords to perform search", Toast.LENGTH_SHORT).show();
         }
