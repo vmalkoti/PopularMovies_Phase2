@@ -25,15 +25,15 @@ This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get mov
 4. Room with LiveData
 
 
-#### Known issues
+### Known issues
 1. RecyclerView and ScrollView do not preserve scroll state on rotation
 
 
-#### Work In Progress
+### Work In Progress
 1. Add favorite functionality in Main Activity's RecyclerView
 
 
-#### Screenshots
+### Screenshots
 
 View lists of movies
 
