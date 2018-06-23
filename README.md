@@ -17,17 +17,21 @@ This app uses TMDB API (https://www.themoviedb.org/documentation/api) to get mov
 * Placeholder images from [freekpik](https://www.freepik.com)
 * Icons from [Material Design](https://material.io/)
 
+
 ###Libraries used
 1. Retrofit
 2. Picasso
 3. Data Binding
 4. Room with LiveData
 
+
 ####Known issues
 1. RecyclerView and ScrollView do not preserve scroll state on rotation
 
+
 ####Work In Progress
 1. Add favorite functionality in Main Activity's RecyclerView
+
 
 ####Screenshots
 
