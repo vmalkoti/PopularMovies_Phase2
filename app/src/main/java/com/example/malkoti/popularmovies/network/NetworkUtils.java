@@ -5,8 +5,9 @@ import android.util.Log;
 
 import com.example.malkoti.popularmovies.BuildConfig;
 import com.example.malkoti.popularmovies.model.MovieResult;
+import com.example.malkoti.popularmovies.model.ReviewResult;
+import com.example.malkoti.popularmovies.model.TrailerResult;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -22,12 +23,6 @@ public class NetworkUtils {
      * @return
      */
     public static LiveData<List<MovieResult.Movie>> getPopularMovies() {
-        /*
-        List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getPopularMovies(API_KEY);
-        loadMoviesIntoList(call, movies);
-        return movies;
-        */
         Call<MovieResult> call = ApiClient.getApiInterface().getPopularMovies(API_KEY);
         return new RetrofitLiveData(call);
     }
@@ -37,12 +32,6 @@ public class NetworkUtils {
      * @return
      */
     public static LiveData<List<MovieResult.Movie>> getTopRatedMovies() {
-        /*
-        List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getTopRatedMovies(API_KEY);
-        loadMoviesIntoList(call, movies);
-        return movies;
-        */
         Call<MovieResult> call = ApiClient.getApiInterface().getTopRatedMovies(API_KEY);
         return new RetrofitLiveData(call);
     }
@@ -52,12 +41,6 @@ public class NetworkUtils {
      * @return
      */
     public static LiveData<List<MovieResult.Movie>> getUpcomingMovies() {
-        /*
-        List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getUpcomingMovies(API_KEY);
-        loadMoviesIntoList(call, movies);
-        return movies;
-        */
         Call<MovieResult> call = ApiClient.getApiInterface().getUpcomingMovies(API_KEY);
         return new RetrofitLiveData(call);
     }
@@ -67,12 +50,6 @@ public class NetworkUtils {
      * @return
      */
     public static LiveData<List<MovieResult.Movie>> getNowPlayingMovies() {
-        /*
-        List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getNowPlayingMovies(API_KEY);
-        loadMoviesIntoList(call, movies);
-        return movies;
-        */
         Call<MovieResult> call = ApiClient.getApiInterface().getNowPlayingMovies(API_KEY);
         return new RetrofitLiveData(call);
     }
@@ -83,39 +60,28 @@ public class NetworkUtils {
      * @return
      */
     public static LiveData<List<MovieResult.Movie>> getSearchResults(String keywords) {
-        /*
-        List<MovieResult.Movie> movies = new ArrayList<>();
-        Call<MovieResult> call = ApiClient.getApiInterface().getMovieSearchResults(API_KEY, keywords);
-        loadMoviesIntoList(call, movies);
-        return movies;
-        */
         Call<MovieResult> call = ApiClient.getApiInterface().getMovieSearchResults(API_KEY, keywords);
         return new RetrofitLiveData(call);
     }
 
     /**
      *
-     * @param call
-     * @param movies
+     * @param movieId
+     * @return
      */
-    private static void loadMoviesIntoList(Call<MovieResult> call, final List<MovieResult.Movie> movies) {
-        Log.d(LOG_TAG, "Performing network call");
+    public static LiveData<TrailerResult> getTrailers(int movieId) {
+        Call<TrailerResult> call = ApiClient.getApiInterface().getMovieTrailers(movieId, API_KEY);
+        return new RetrofitLiveDataNew(call);
+    }
 
-        call.enqueue(new Callback<MovieResult>() {
-            @Override
-            public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
-                MovieResult MovieResult = response.body();
-                //movies.clear();
-                movies.addAll(MovieResult.moviesList);
-                Log.d(LOG_TAG, "Added list to movies");
-            }
-
-            @Override
-            public void onFailure(Call<MovieResult> call, Throwable t) {
-                Log.e(LOG_TAG, "Error getting list of movies from internet "
-                        + ". \nERROR : " + t.getMessage());
-            }
-        });
+    /**
+     *
+     * @param movieId
+     * @return
+     */
+    public static LiveData<ReviewResult> getReviews(int movieId) {
+        Call<ReviewResult> call = ApiClient.getApiInterface().getMovieReviews(movieId, API_KEY);
+        return new RetrofitLiveDataNew(call);
     }
 
     /**
@@ -147,6 +113,39 @@ public class NetworkUtils {
 
         @Override
         public void onFailure(Call<MovieResult> call, Throwable t) {
+            Log.e(LOG_TAG, "Error getting network data. "
+                    + "URL: " + call.request().url().toString() + " "
+                    + "ERROR: " + t.getMessage());
+        }
+    }
+
+    /**
+     * Generic class for all types of network call
+     * @param <T>
+     */
+    static class RetrofitLiveDataNew<T> extends LiveData<T>  implements  Callback<T> {
+        private final String LOG_TAG = RetrofitLiveData.class.getSimpleName();
+        private Call<T> call;
+
+        public RetrofitLiveDataNew(Call<T> call) {
+            this.call = call;
+        }
+
+        @Override
+        protected void onActive() {
+            if(!this.call.isCanceled() && !this.call.isExecuted()) {
+                this.call.enqueue(this);
+            }
+        }
+
+        @Override
+        public void onResponse(Call<T> call, Response<T> response) {
+            T results = response.body();
+            setValue(results);
+        }
+
+        @Override
+        public void onFailure(Call<T> call, Throwable t) {
             Log.e(LOG_TAG, "Error getting network data. "
                     + "URL: " + call.request().url().toString() + " "
                     + "ERROR: " + t.getMessage());

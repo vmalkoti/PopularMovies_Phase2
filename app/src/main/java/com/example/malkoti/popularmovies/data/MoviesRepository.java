@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.malkoti.popularmovies.model.MovieResult;
+import com.example.malkoti.popularmovies.model.ReviewResult;
+import com.example.malkoti.popularmovies.model.TrailerResult;
 import com.example.malkoti.popularmovies.network.NetworkUtils;
 import com.example.malkoti.popularmovies.persistence.FavoritesDao;
 import com.example.malkoti.popularmovies.persistence.FavoritesDatabase;
@@ -109,6 +111,14 @@ public class MoviesRepository {
         return searchResults;
         */
         return NetworkUtils.getSearchResults(keywords);
+    }
+
+    LiveData<TrailerResult> getMovieTrailerResults(int movieId) {
+        return NetworkUtils.getTrailers(movieId);
+    }
+
+    LiveData<ReviewResult> getMovieReviewResults(int movieId) {
+        return NetworkUtils.getReviews(movieId);
     }
 
     /**

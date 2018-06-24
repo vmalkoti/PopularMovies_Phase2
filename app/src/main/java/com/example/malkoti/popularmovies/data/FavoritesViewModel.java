@@ -9,6 +9,8 @@ import android.arch.lifecycle.Transformations;
 import android.support.annotation.NonNull;
 
 import com.example.malkoti.popularmovies.model.MovieResult;
+import com.example.malkoti.popularmovies.model.ReviewResult;
+import com.example.malkoti.popularmovies.model.TrailerResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,12 +59,16 @@ public class FavoritesViewModel extends AndroidViewModel {
         favoriteMovies = moviesRepository.getFavoriteMovies();
     }
 
-    public LiveData<List<MovieResult.Movie>> getFavoriteMovies() {
-        return favoriteMovies;
-    }
-
     public LiveData<List<MovieResult.Movie>> getMovies() {
         return movies;
+    }
+
+    public LiveData<TrailerResult> getTrailers(int movieId) {
+        return moviesRepository.getMovieTrailerResults(movieId);
+    }
+
+    public LiveData<ReviewResult> getReviews(int movieId) {
+        return moviesRepository.getMovieReviewResults(movieId);
     }
 
     public void insertFavorite(MovieResult.Movie movie) {

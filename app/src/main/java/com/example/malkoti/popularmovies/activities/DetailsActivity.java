@@ -38,53 +38,80 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DetailsActivity extends AppCompatActivity {
-    public static final String MOVIE_ID_KEY = "MOVIE_ID";
-    public static final String MOVIE_FAVORITE_KEY = "MOVIE_FAVORITE";
+public class DetailsActivity extends AppCompatActivity
+        implements TrailerAdapter.TrailerAdapterOnClickHandler {
     public static final String MOVIE_KEY = "MOVIE";
+    private String TRAILERS_STATE = "TrailerSavedState";
+    private String REVIEWS_STATE = "ReviewSavedState";
 
     private final String LOG_TAG = DetailsActivity.class.getSimpleName();
     private final String API_KEY = BuildConfig.apiKey;
 
     ActivityDetailsBinding binding;
+    private MovieResult.Movie movie;
+    private boolean isFavorite;
 
-    private String TRAILERS_STATE = "TrailerSavedState";
-    private String REVIEWS_STATE = "ReviewSavedState";
+    private ShareActionProvider mShareActionProvider;
+
+    private TrailerAdapter trailerAdapter = new TrailerAdapter(this);
+    private ReviewAdapter reviewAdapter = new ReviewAdapter();
 
     private FavoritesViewModel viewModel;
-    private Observer<Integer> observer = new Observer<Integer>() {
+    private Observer<Integer> favoriteObserver = new Observer<Integer>() {
         @Override
         public void onChanged(@Nullable Integer value) {
             isFavorite = (value > 0);
             setFavoriteIcon(isFavorite);
         }
     };
+    private Observer<TrailerResult> trailerObserver = new Observer<TrailerResult>() {
+        @Override
+        public void onChanged(@Nullable TrailerResult trailerResult) {
+            List<TrailerResult.Trailer> trailers = trailerResult.getTrailersList();
+            trailerAdapter.setData(trailers);
+            if(trailers.size() > 0) {
+                binding.trailersTv.setVisibility(View.VISIBLE);
+            }
+        }
+    };
+    private Observer<ReviewResult> reviewObserver = new Observer<ReviewResult>() {
+        @Override
+        public void onChanged(@Nullable ReviewResult reviewResult) {
+            List<ReviewResult.Review> reviews = reviewResult.getReviews();
+            reviewAdapter.setData(reviews);
+            if(reviews.size() > 0) {
+                binding.reviewsTv.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
-    private MovieResult.Movie movie;
-    private boolean isFavorite;
-
-    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_details);
 
-        int selectedMovieId = getIntent().getIntExtra(MOVIE_ID_KEY, 0);
-        isFavorite = getIntent().getBooleanExtra(MOVIE_FAVORITE_KEY, false);
-
         movie = getIntent().getParcelableExtra(MOVIE_KEY);
-
-        //getMovieDetails(selectedMovieId);
         loadMovieDetailsIntoViews(movie);
 
         viewModel = ViewModelProviders.of(DetailsActivity.this).get(FavoritesViewModel.class);
-        viewModel.isFavorite(movie).observe(DetailsActivity.this, observer);
+        viewModel.isFavorite(movie).observe(DetailsActivity.this, favoriteObserver);
 
-        loadTrailers(movie.getMovieId());
-        loadReviews(movie.getMovieId());
+        /* Trailers and Reviews using viewModel -- START */
+        binding.trailers.setAdapter(trailerAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(DetailsActivity.this,
+                LinearLayoutManager.HORIZONTAL, false);
+        binding.trailers.setLayoutManager(layoutManager);
+        viewModel.getTrailers(movie.getMovieId()).observe(DetailsActivity.this, trailerObserver);
 
+        binding.reviews.setAdapter(reviewAdapter);
+        binding.reviews.setLayoutManager(
+                new LinearLayoutManager(DetailsActivity.this));
+        viewModel.getReviews(movie.getMovieId()).observe(DetailsActivity.this, reviewObserver);
+        /* Trailers and Reviews using viewModel -- END */
 
+        //loadTrailers(movie.getMovieId());
+        //loadReviews(movie.getMovieId());
 
         binding.favoriteIconImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,29 +175,6 @@ public class DetailsActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Get movie details from the API
-     * @param movieId ID of movie to fetch
-     */
-    private void getMovieDetails(final int movieId) {
-        Call<MovieResult.Movie> call = ApiClient.getApiInterface().getMovieDetails(movieId, API_KEY);
-
-        call.enqueue(new Callback<MovieResult.Movie>() {
-            @Override
-            public void onResponse(Call<MovieResult.Movie> call, Response<MovieResult.Movie> response) {
-                movie = response.body();
-                loadMovieDetailsIntoViews(movie);
-                viewModel.isFavorite(movie).observe(DetailsActivity.this, observer);
-            }
-
-            @Override
-            public void onFailure(Call<MovieResult.Movie> call, Throwable t) {
-                Toast.makeText(DetailsActivity.this, "Error getting movie details", Toast.LENGTH_SHORT).show();
-                Log.e(LOG_TAG, "Error getting movie details " + movieId
-                    + ". \nERROR : " + t.getMessage());
-            }
-        });
-    }
 
     /**
      * Load movie information into Views
@@ -212,6 +216,26 @@ public class DetailsActivity extends AppCompatActivity {
         binding.favoriteIconImg.setBackgroundResource(imgId);
     }
 
+    public void onItemClick(String trailerKey) {
+        String videoUrl = "https://www.youtube.com/watch?v=" + trailerKey;
+
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
+        PackageManager manager = DetailsActivity.this.getPackageManager();
+
+        if(appIntent.resolveActivity(manager) != null) {
+            startActivity(appIntent);
+        } else {
+            Toast.makeText(DetailsActivity.this,
+                    "No app available for showing trailer video",
+                    Toast.LENGTH_SHORT).show();
+            Log.e(LOG_TAG, "No app available for showing trailer video");
+        }
+    }
+
+    /* Not needed anymore
+     * Getting data using viewmodel now
+     */
+    /*
     private void loadTrailers(final int movieId) {
         //  https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key={api_key}
         TrailerAdapter.TrailerAdapterOnClickHandler clickHandler = new TrailerAdapter.TrailerAdapterOnClickHandler() {
@@ -243,11 +267,11 @@ public class DetailsActivity extends AppCompatActivity {
         call.enqueue(new Callback<TrailerResult>() {
             @Override
             public void onResponse(Call<TrailerResult> call, Response<TrailerResult> response) {
+                Log.d(LOG_TAG, "Trailer call url " + call.request().url());
                 TrailerResult result = response.body();
                 List<TrailerResult.Trailer> trailers = result.getTrailersList();
                 adapter.setData(trailers);
                 if(trailers.size() > 0) {
-                    String firstTrailer = trailers.get(0).getKey();
                     binding.trailersTv.setVisibility(View.VISIBLE);
                 }
             }
@@ -260,7 +284,12 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
     }
+    */
 
+    /* Not needed anymore
+     * Getting data using viewmodel now
+     */
+    /*
     private void loadReviews(final int movieId) {
         final ReviewAdapter adapter = new ReviewAdapter();
         binding.reviews.setAdapter(adapter);
@@ -287,4 +316,7 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
     }
+    */
+
+
 }

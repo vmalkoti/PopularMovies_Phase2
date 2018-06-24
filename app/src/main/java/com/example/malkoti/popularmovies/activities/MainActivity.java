@@ -331,7 +331,6 @@ public class MainActivity
      */
     public void onItemClick(MovieResult.Movie movie) {
         Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-        intent.putExtra(DetailsActivity.MOVIE_ID_KEY, movie.getMovieId());
         intent.putExtra(DetailsActivity.MOVIE_KEY, movie);
         startActivity(intent);
     }
