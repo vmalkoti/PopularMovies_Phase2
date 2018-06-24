@@ -136,14 +136,14 @@ public class DetailsActivity extends AppCompatActivity
 
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        String shareSubject = "View on Movies App";
+        String shareSubject = getString(R.string.share_action_subject);
         StringBuilder builder = new StringBuilder();
         builder.append(movie.getMovieTitle());
         builder.append("\n\n");
         builder.append(movie.getOverview());
         builder.append("\n\n");
-        builder.append("View more on Movies app. Download from Google Play Store today.");
-        builder.append("<Play Store URL here>");
+        builder.append(getString(R.string.share_action_footer));
+        builder.append(getString(R.string.play_store_url));
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareSubject);
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, builder.toString());
 

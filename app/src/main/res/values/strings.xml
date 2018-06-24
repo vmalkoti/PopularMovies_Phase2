@@ -23,4 +23,7 @@
     <string name="trailers_header_text">Trailers</string>
     <string name="content_desc_favorite_ind">Favorite indicator</string>
     <string name="share_item">Share</string>
+    <string name="share_action_subject">View on Movies App</string>
+    <string name="share_action_footer">View more on Movies app. Download from Google Play Store today.</string>
+    <string name="play_store_url">[Play Store URL here]</string>
 </resources>
